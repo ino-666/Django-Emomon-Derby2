@@ -1,0 +1,24 @@
+body {
+    background-color: black;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+body.thunderstorm {
+    background-color: #333; /* Or any dark color you prefer */
+}
+  
+  #svg {
+    position: absolute;
+    z-index: 1; /* 小さい値を設定 */
+    height: 100%;
+    width: 100%;
+  }
+  
+  #raceScreen {
+    position: relative;
+    z-index: 2; /* 大きい値を設定 */
+    /* その他のスタイル設定... */
+  }

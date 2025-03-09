@@ -1,0 +1,231 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <link rel="stylesheet" href="{% static 'css/fireFlower.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            overflow: hidden;
+        }
+
+        #credits {
+            animation: scroll 250s linear infinite;
+            text-align: center;
+            padding: 50% 0;
+            font-size: 2.5em;
+            line-height: 5;
+        }
+        
+        .underline {
+            style="font-family: 'Great Vibes', cursive;
+            text-decoration: underline;
+        }
+        #credits h2 {
+            text-decoration: underline;
+        }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+        }
+
+        .credits-title {
+            text-align: right;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateY(100%);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+
+        
+    </style>
+</head>
+<body onclick="playBGM()">
+    <div id="overlay" onclick="hideOverlay()">Click to start</div>
+    
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+    <div class="c-firework"></div>
+
+
+    {% comment %} 日本語版 {% endcomment %}
+    <!-- <div id="credits"> -->
+        <!-- <h1>"馬走"</h1>
+        <h3>"スタッフロール</h3>
+        <h2>🐴エグゼクティブプロデューサー🐴</h2>
+        <div>Buddy 🐵</div>
+        <div>小口雄大 🦁</div>
+        <h2>🦊ゲームディレクター🦊</h2>
+        <div>Buddy 🐼</div>
+        <h2>🐻リードプログラマー🐻</h2>
+        <div>Buddy 🐨</div>
+        <h2>🐰プログラミングチーム🐰</h2>
+        <div>杵鞭慎太郎 🐸</div>
+        <div>斎藤和樹 🐧</div>
+        <div>井上拓未 🐦</div>
+        <h2>🐔アートディレクター🐔</h2>
+        <div>杵鞭慎太郎 🦉</div>
+        <h2>🐤キャラクターデザイン🐤</h2>
+        <div>🐴🐎Windowsの絵文字達🫏🦄</div>
+        <h2>🐢レースデザイン🐢</h2>
+        <div>斎藤和樹 🦅</div>
+        <h2>🦆音楽ディレクター🦆</h2>
+        <div>魔王魂 🦕</div>
+        <div>効果音ラボ 🦖</div>
+        <h2>🦚サウンドデザイン🦚</h2>
+        <div>井上拓未 🐍</div>
+        <h2>🦎テスト＆QAチーム🦎</h2>
+        <div>杵鞭慎太郎 🐙</div>
+        <div>斎藤和樹 🦑</div>
+        <div>井上拓未 🐠</div>
+        <h2>🐡マーケティング＆PR🐡</h2>
+        <div>いないよ～ 🐟</div>
+        <h2>🦈スペシャルサンクス🦈</h2>
+        <div>Buddy 🐋</div>
+        <div>小口雄大 🐬</div>
+        <h2>🐳協賛🐳</h2>
+        <h1>株式会社U-NEXT HOLDINGS</h1>
+        <h3>プレイしてくれてありがとー！</h3>
+        <h3>🐶 🐱 🐭 🐹 🐰 🦊 🐼 🐻 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🦉 🐴 🦄 🦓 🦍 🙎‍♂️ 🦦 🐺 🐗 🐢 🐳 🐺 🐗 🐢
+
+        </h3> -->
+
+        {% comment %} 英語版 {% endcomment %}
+        <div id="credits">
+            <h1 style="font-family: 'Great Vibes', cursive; font-size: 64px;">Emomon Derby</h1>
+            <h3>"End Credits"</h3>
+            <h2>🐴Executive Producer🐴</h2>
+            <div>Buddy 🐵</div>
+            <div>Yudai Oguchi 🦁</div>
+            <h2>🦊Game Director🦊</h2>
+            <div>Buddy 🐼</div>
+            <h2>🐻Lead Programmer🐻</h2>
+            <div>Buddy 🐨</div>
+            <h2>🐰Programming Team🐰</h2>
+            <div>Shintaro Kinemuchi 🐸</div>
+            <div>Kazuki Saito 🐧</div>
+            <div>Takumi Inoue 🐦</div>
+            <h2>🐔Art Director🐔</h2>
+            <div>Shintaro Kinemuchi 🦉</div>
+            <h2>🐤Character Design🐤</h2>
+            <div>🐴🐎Windows' Emojis🫏🦄</div>
+            <h2>🐢Race Design🐢</h2>
+            <div>Kazuki Saito 🦅</div>
+            <h2>🦆Music Director🦆</h2>
+            <div>Maou Soul 🦕</div>
+            <div>Sound Effect Lab 🦖</div>
+            <h2>🦚Sound Design🦚</h2>
+            <div>Takumi Inoue 🐍</div>
+            <h2>🦎Test & QA Team🦎</h2>
+            <div>Shintaro Kinemuchi 🐙</div>
+            <div>Kazuki Saito 🦑</div>
+            <div>Takumi Inoue 🐠</div>
+            <h2>🐡Marketing & PR🐡</h2>
+            <div>None 😭</div>
+            <h2>🦈Special Thanks🦈</h2>
+            <div>Buddy 🐋</div>
+            <div>Yudai Oguchi 🐬</div>
+            <h2>🐳Sponsor🐳</h2>
+            <h1>None 😭</h1>
+            <h3>Thanks for playing!</h3>
+            <h3>🐶 🐱 🐭 🐹 🐰 🦊 🐼 🐻 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🦉 🐴 🦄 🦓 🦍 🙎‍♂️ 🦦 🐺 🐗 🐢 🐳 🐺 🐗 🐢
+            </h3>
+            <h6 class="credits-title">presents by Nagaoka Race Track</h6>
+    </div>
+
+
+
+    <script>
+        var isPaused = false;
+        var soundFileUrl = "{% static 'audio/ending.mp3' %}";
+        var bgm = new Audio(soundFileUrl);
+        bgm.volume = 0.01; // 音量3%
+
+        function playBGM() {
+            bgm.play();
+        }
+
+        function hideOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+        // 118秒後にスクロールを停止
+        setTimeout(function() {
+            var credits = document.getElementById('credits');
+            credits.style.animationPlayState = 'paused';
+        }, 117000);
+        
+        // 128秒後にホームに遷移
+        setTimeout(function() {
+            window.location.href = "{% url 'accounts:home' %}"; 
+        }, 128000); 
+
+        document.body.addEventListener('click', function () {
+        var fireworks = document.querySelectorAll('.c-firework');
+
+        for (var i = 0; i < 30; i++) {
+            var randomFirework = fireworks[Math.floor(Math.random() * fireworks.length)];
+
+            // 花火を一時的に表示します
+            randomFirework.style.visibility = 'visible';
+
+            // アニメーションが終わったら花火を再び非表示にします
+            randomFirework.addEventListener('animationend', function () {
+            randomFirework.style.visibility = 'hidden';
+            });
+        }
+        });
+
+
+    </script>
+</body>
+</html>

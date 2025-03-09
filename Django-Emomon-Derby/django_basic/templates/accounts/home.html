@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+
+<style>
+body {
+    background-color: #ffffff; /* you can adjust the color to the shade of grey you want */
+}
+        
+
+
+        .character-card {
+                border: 3px solid #cccccc; 
+                padding: 10px 5px;
+                margin: 5px 0;
+                width: 90%;
+        }
+        .name {
+                border-right: 1px solid #cccccc; 
+                padding-right: 10px;
+                margin-right: 10px;
+                margin-bottom: 15px; 
+                padding-bottom: 10px;
+        }
+        .area {
+                margin-bottom: 5px; 
+                padding-bottom: 4px;
+        }
+        .goRace {
+                position: absolute;
+                top: 5%;
+                align-items: center; 
+        }
+        .weather {
+                position: absolute;
+                top: 5%;
+                right: 0;
+                text-align: right; 
+        }
+        .small-margin {
+                margin-bottom: 10px;
+        }
+        .allArea {
+                height: 20%;
+                width: 40%;
+        }
+        @keyframes glowing {
+                0% { background-color: #3a3c3d; box-shadow: 0 0 5px #3a3c3d, 0 0 10px #3a3c3d, 0 0 15px #3a3c3d, 0 0 20px #3a3c3d; }
+                50% { background-color: #1f1f1f; box-shadow: 0 0 5px #1f1f1f, 0 0 10px #1f1f1f, 0 0 15px #1f1f1f, 0 0 20px #1f1f1f; }
+                100% { background-color: #3a3c3d; box-shadow: 0 0 5px #3a3c3d, 0 0 10px #3a3c3d, 0 0 15px #3a3c3d, 0 0 20px #3a3c3d; }
+        }
+
+#tooltip {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 5px;
+        border-radius: 5px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 3; /* テキストを前面に表示します */
+    position: absolute; /* z-indexを機能させるために必要です */
+    left:65%;
+    top: 70%; /* ページの最上部にテキストを配置します */
+}
+
+
+.modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        justify-content: center;
+    }
+
+            
+    .modal-content-sumaho {
+        background-color: #fefefe;
+        padding: 80px;
+        border: 1px solid #888;
+        position: fixed; /* Change from 'static' to 'fixed' */
+        left: 50%; /* Center horizontally */
+        top: 50%; /* Center vertically */
+        transform: translate(-50%, -50%); /* Correct the offset */
+        height: 50%; /* Full height */
+        width: 90%; /* Change to provide enough space for text */
+        display: flex; /* Add this line */
+        flex-direction: row; /* Add this line */
+        flex-wrap: nowrap; /* Prevent flex items from wrapping */
+        align-items: center; /* Add this line */
+        justify-content: center; /* Add this line */
+        text-align: center; /* Add this line */
+    }
+
+    .glowing-button {
+        animation: glowing 2s infinite;
+}
+.hidden {
+        display: none;
+}
+#tooltip {
+        position: absolute;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 5px;
+        border-radius: 5px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 3; /* テキストを前面に表示します */
+        position: absolute; /* z-indexを機能させるために必要です */
+        left:65%;
+        height: 770px; 
+}
+.scroll{
+        overflow: scroll;
+}  
+
+
+    @media screen and (orientation: landscape) and (max-width: 1200px) {
+        .navbar-nav {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .navbar-text {
+                order: -1;
+                width: 100%;
+            }
+            .nav-item {
+                flex: 1 1 auto;
+            }
+        }
+
+</style>
+<style>
+        /* スマホサイズ（横画面）用デザイン */
+        @media screen and (max-width: 1000px) and (orientation: landscape) {
+        /* ここに横向きの時に適用したいスタイルを書く */
+
+        .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+        }
+
+        .modal-content {
+                background-color: #fefefe;
+                padding: 80px;
+                border: 1px solid #888;
+                left: 10px;
+                top: 100px;
+                width: auto; /* Change to auto */
+                display: flex; /* Add this line */
+                align-items: center; /* Add this line */
+                justify-content: center; /* Add this line */
+                text-align: center; /* Add this line */
+        }
+        }
+</style>
+
+<div id="modal" class="modal">
+        <div class="modal-content">
+        画面を横に戻してね！
+        </div>
+</div>
+<nav class="navbar navbar-expand-lg">
+        <div class="container">
+                <span class="navbar-text ml-auto mr-2">¥{{ user.money }}</span>
+                <ul class="navbar-nav">
+                <li class="nav-item">
+                        <a class="btn btn-secondary mb-3 mr-2" href="{% url 'horse:create_horse' %}">SHOP</a>
+                        <a class="btn btn-secondary mb-3 mr-2" href="{% url 'accounts:retiredHorses' %}">歴戦のエモモン</a>
+                        <!-- エンディングボタンの表示 -->
+                        {% if user.ed_enables %}
+                                <a class="btn btn-secondary mb-3 mr-2 glowing-button" href="{% url 'accounts:ending' %}" onclick="return confirm('エンディングを見ますか？')">エンディング</a>
+                        {% else %}
+                                <a href="{% url 'accounts:ed_purchase' %}" class="btn btn-secondary mb-3 mr-2 glowing-button" onclick="return confirm('¥5,000が必要です。支払いますか？');">？？？</a>
+                        {% endif %}
+                </li>
+                <li>
+                        <button id="instructionButton" class="btn btn-secondary mb-3 mr-2 ">遊び方はこちら</button>
+                        <div id="tooltip" class="hidden scroll">遊び方の説明がここに入ります。</div>
+                </li>
+                <li class="nav-item">
+                        <a class="btn btn-secondary mb-3" href="{% url 'accounts:logout' %}">ログアウト</a>
+                </li>
+                </ul>
+        </div>
+</nav>
+
+<p class="mb-3 text-center" style="font-size: 25px;">レースまで<span class="badge bg-" style="font-size: 40px">{{ user.remaining_days }}</span>ターン</p>
+<br>
+<div class="d-flex justify-content-center">
+        <form method="POST" action="{% url 'accounts:training' %}">
+        {% csrf_token %}
+                <button class="btn btn-primary mb-3 mr-2" type="submit" name="training_type" value="elevation" title="このトレーニングでスタミナが上がります。" onclick="return checkHorses();">標高トレーニング🚩</button>
+                <button class="btn btn-primary mb-3 mr-2" type="submit" name="training_type" value="dash" title="このトレーニングでスピードが上がります。" onclick="return checkHorses();">ダッシュ👟</button>
+                <button class="btn btn-primary mb-3" type="submit" name="training_type" value="prayer" title="このトレーニングで運が上がります。" onclick="return checkHorses();">お参り🔖</button>
+        </form>
+</div>
+
+<h3 class="mb-3 text-center">僕の<span id="emo" style="color: pink;">エモ</span>モン</h3>
+
+
+<div class="container-fluid">
+        <div class="row justify-content-center">
+                <div class="col-6">
+                        {% for horse in user_horses %}
+                                {% if forloop.counter|divisibleby:2 == 0  %}
+                                <div class="row justify-content-center">
+                                        <div class="character-card mx-2 text-center">
+                                                <div class="d-flex justify-content-between">
+                                                        <div class="mb-0 name">
+                                                                <p class="mb-0 small-margin" style="width: 100%;"><strong style="font-size: 90px;">{{ horse.emoji }}</strong></p>
+                                                        </div>
+                                                        <div class="container" style="position: relative; width: 100%; height: 1px;">
+                                                                <p class="mb-0 area" style="font-size: 30px;"><strong><a href="{% url 'horse:horse_id' horse.id %}" title="詳細ページに移動します">{{ horse.name }}</a></strong></p>                                                                
+                                                                <ul class="list-inline">
+                                                                        <li class="list-inline-item">
+                                                                                <span>🚩スタミナ：<span  style="font-size: 25px;">{{ horse.stamina }}</span>
+                                                                                {% if horse.stamina_increase != -1 %}
+                                                                                        <span id="stamina_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.stamina_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                                <span>👟スピード：<span  style="font-size: 25px;">{{ horse.speed }}</span>
+                                                                                {% if horse.speed_increase != -1 %}
+                                                                                        <span id="speed_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.speed_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                                <span>🔖運：<span  style="font-size: 25px;">{{ horse.luck }}</span>
+                                                                                {% if horse.luck_increase != -1 %}
+                                                                                        <span id="luck_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.luck_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                </ul>
+                                                                <p class="small-margin" style="font-size: 18px;">特性：
+                                                                {% for trait in horse.traits.all %}
+                                                                        {% if forloop.first %}
+                                                                                {{ trait.name }}
+                                                                        {% else %}
+                                                                                , {{ trait.name }}
+                                                                        {% endif %}
+                                                                {% endfor %}
+                                                                </p>    
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                {% endif %}
+                        {% endfor %}
+                </div>
+                <div class="col-6">
+                        {% for horse in user_horses %}
+                                {% if horse.num_remaining_turns > 0 %}
+                                {% if forloop.counter|divisibleby:2 == 1  %}
+                                <div class="row justify-content-center">
+                                        <div class="character-card mx-2 text-center">
+                                                <div class="d-flex justify-content-between">
+                                                        <div class="mb-0 name">
+                                                                <p class="mb-0 small-margin" style="width: 100%;"><strong style="font-size: 90px;">{{ horse.emoji }}</strong></p>
+                                                        </div>
+                                                        <div class="container" style="position: relative; width: 100%; height: 1px;">
+                                                                <p class="mb-0 area" style="font-size: 30px;"><strong><a href="{% url 'horse:horse_id' horse.id %}" title="詳細ページに移動します">{{ horse.name }}</a></strong></p>                                                                
+                                                                <ul class="list-inline">
+                                                                        <li class="list-inline-item">
+                                                                                <span>🚩スタミナ：<span  style="font-size: 25px;">{{ horse.stamina }}</span>
+                                                                                {% if horse.stamina_increase != -1 %}
+                                                                                        <span id="stamina_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.stamina_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                                <span>👟スピード：<span  style="font-size: 25px;">{{ horse.speed }}</span>
+                                                                                {% if horse.speed_increase != -1 %}
+                                                                                        <span id="speed_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.speed_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                        <li class="list-inline-item">
+                                                                                <span>🔖運：<span  style="font-size: 25px;">{{ horse.luck }}</span>
+                                                                                {% if horse.luck_increase != -1 %}
+                                                                                        <span id="luck_increase_{{horse.id}}" style="color:red; position: absolute;">+{{horse.luck_increase}}</span>
+                                                                                {% endif %}
+                                                                                </span>
+                                                                                <span>　</span>
+                                                                        </li>
+                                                                </ul>
+                                                                <p class="small-margin" style="font-size: 18px;">特性：
+                                                                {% for trait in horse.traits.all %}
+                                                                        {% if forloop.first %}
+                                                                                {{ trait.name }}
+                                                                        {% else %}
+                                                                                , {{ trait.name }}
+                                                                        {% endif %}
+                                                                {% endfor %}
+                                                                </p>   
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                        {% endfor %}
+                </div>
+        </div>
+</div>
+
+
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                </button>
+                        </div>
+                        <div class="modal-body">
+                                {% for message in messages %}
+                                        {{ message|safe }}
+                                {% endfor %}
+                        </div>
+                </div>
+        </div>
+</div>
+
+{% comment %} <div class="modal-body">
+        {% for message in messages %}
+                {% if message %}
+                        <p>{{ message }}</p>
+                {% endif %}
+        {% endfor %}
+        </div>
+<div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> {% endcomment %}
+</div>
+
+
+<script>
+        // 画面の向きが縦向きの時モーダルを表示する
+        function checkOrientation() {
+                var modal = document.getElementById('modal');
+                if (window.innerWidth <= window.innerHeight) {
+                    // 縦向きの場合
+                    modal.style.display = "block"; // モーダルを表示
+                } else {
+                    // それ以外の場合
+                    modal.style.display = "none"; // モーダルを非表示
+                }
+        }
+
+        window.addEventListener("load", function() {
+                checkOrientation();
+                window.addEventListener("resize", checkOrientation);
+        });
+
+
+        function checkHorses() {
+                var horseCount = {{ user_horses.count }};
+                if (horseCount === 0) {
+                alert("エモモンを所有していないため、トレーニングはできません。");
+                return false;
+                }
+                return true;
+        }
+        window.onload = function() {
+                {% for horse in user_horses %}
+                (function(horse_id) {
+                        setTimeout(function() {
+                                if(document.getElementById('stamina_increase_' + horse_id)) {
+                                        document.getElementById('stamina_increase_' + horse_id).style.display = 'none';
+                                }
+                                if(document.getElementById('speed_increase_' + horse_id)) {
+                                        document.getElementById('speed_increase_' + horse_id).style.display = 'none';
+                                }
+                                if(document.getElementById('luck_increase_' + horse_id)) {
+                                        document.getElementById('luck_increase_' + horse_id).style.display = 'none';
+                                }
+                        }, 800)
+                })({{ horse.id }});
+                {% endfor %}
+        };
+        </script>
+        <script type="text/javascript">
+                $(document).ready(function(){
+                        {% if messages %}
+                                // If there are messages, show the modal
+                                $('#messageModal').modal('show');
+                        {% endif %}
+                });
+
+
+                var instructionButton = document.getElementById("instructionButton");
+                var tooltip = document.getElementById("tooltip");
+
+                instructionButton.addEventListener('click', function() {
+                        if (tooltip.classList.contains('hidden')) {
+                                tooltip.classList.remove('hidden');
+                        } else {
+                                tooltip.classList.add('hidden');
+                        }
+                });
+                
+                fetch('{% url 'accounts:instruction' %}')
+                .then(response => response.text())
+                .then(data => {
+                        document.getElementById('tooltip').innerHTML = data;
+
+                });
+        </script>
+        <script>
+                $(document).ready(function(){
+                        if ($('.alert').length > 0) {
+                                $('#messageModal').modal('show');
+                        }
+                });
+
+                //エモをクリックすると色が変わる
+                document.getElementById('emo').addEventListener('click', function(){
+                    // 現在の色が緑なら紫に、紫なら緑に、それ以外（つまり初回のクリック）なら緑に変更します
+                    if (this.style.color === 'green') {
+                        this.style.color = 'purple';
+                    } else if (this.style.color === 'purple') {
+                        this.style.color = 'green';
+                    } else {
+                        this.style.color = 'green';
+                    }
+                });
+        </script>
+{% endblock %}

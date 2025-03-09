@@ -1,0 +1,1341 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/rain.css' %}">
+    <link rel="stylesheet" href="{% static 'css/thunder.css' %}">
+    <link rel="stylesheet" href="{% static 'css/snow.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mornig_sun.css' %}">
+    <link rel="stylesheet" href="{% static 'css/noon_sun.css' %}">
+    <link rel="stylesheet" href="{% static 'css/moon.css' %}">
+
+    <title>Animated Horse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.4">
+    <style>
+        body {
+            background-color: #ADD8E6;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        .editable {
+            font-size: 16px; 
+            position: relative;
+        }
+
+        .editable:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 130ch;
+            width: 3px; /* Adjust this to change the line thickness */
+            height: 100%;
+            background: black; /* Change this to your desired color */
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+
+        .centered-button {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .large-button {
+            font-size: 24px;  /* この値を調整してボタンのテキストの大きさを変えることができます */
+            padding: 10px 24px;  /* この値を調整してボタン自体の大きさを変えることができます */
+        }
+
+        .centered-text {
+            position: fixed;
+            top: 50%;
+            left: 150%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;  /* この値を調整してテキストの大きさを変えることができます */
+        }
+
+        /* 絵文字の大きさ*/
+        .emoji {
+            display: inline-block; 
+            width: 16px; /* 絵文字の幅を16pxに設定 */
+            text-align: center; /* 絵文字を中央揃えに設定 */
+        }
+
+        .message45 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: red;
+            background: white;
+            padding: 10px;
+            display: none;
+        }
+
+        @keyframes animalsemoji {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        }
+        
+        .animalsemoji {
+            display: inline-block;
+            animation: animalsemoji 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
+        }
+
+        /* ゴール時に表示される順位 */
+        #goal-messages {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .goal-message {
+            background-color: #333;  /* Dark background for contrast */
+            color: #fff;  /* White text color */
+            padding: 10px;  /* Some padding for spacing */
+            margin: 10px;  /* Some margin for spacing */
+            border-radius: 5px;  /* Rounded corners */
+        }
+
+        #start-race {
+            position: fixed;
+            bottom: 45px;
+            right: 8%; 
+        } 
+
+        /* スマホサイズ用の画面横向きしてくださいの表示*/
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+          }
+          
+          .modal-content {
+            background-color: #fefefe;
+            margin: 50% auto; /* 15% from the top and centered */
+            padding: 100px;
+            border: 1px solid #888;
+            width: 100%; /* Could be more or less, depending on screen size */
+          }
+
+
+          /* スマホサイズ（横画面）用デザイン */
+          @media screen and (orientation: landscape) and (max-width: 600px){
+              /* ここに横向きの時に適用したいスタイルを書く */
+              .editable {
+                  font-size: 14px; 
+              }
+              .large-button {
+                  font-size: 20px;
+                  padding: 8px 20px;
+              }
+          
+              .centered-text {
+                  font-size: 28px;
+              }
+          
+              .emoji {
+                  width: 14px;
+              }
+          
+              .message45 {
+                  font-size: 1.5em;
+              }
+          
+              /* #goal-messages {
+                  position: fixed; 
+                  bottom: 38%;
+                  left: 0;
+                  flex-direction: row;
+              } */
+              #start-race {
+                  position: fixed;
+                  top: 750px;
+                  left: 1200px;
+                  width: 90px;
+                  height: 50px;
+              }
+            }
+
+    </style>
+</head>
+<body>
+
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+          このページは横向きで表示されるように設計されています。デバイスを横にしてください。
+        </div>
+      </div>
+    <p id="emojiOutput"></p><!-- 天気に応じて絵文字を表示できる -->
+    <p id="weatherOutput"></p><!-- 現在の天気を表示できる-->
+    <p id="timeOutput"></p> <!--現在の時間帯を表示できる -->
+
+    <audio id="bgm" src="{% static 'audio/race_bgm.mp3' %}"></audio>
+    <br>
+    <br><br><br>
+
+    <div id="racetable"></div> 
+    <div>🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵</div>
+    <div id="animalsemoji1"></div>
+    <div>🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵</div>
+    <div>———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————</div>
+    <div id="editable1" class="editable" contenteditable="true">{{horse.emoji}}</div>
+    <div>———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————</div>
+    {% for cpu_horse in cpu_horses %}
+    <div id="editable{{ forloop.counter0|add:2 }}" class="editable" contenteditable="true">{{cpu_horse.emoji}}</div>
+    <div>———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————</div>
+    {% endfor %}
+    <div>🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵</div>
+    <div id="animalsemoji2"></div>
+    <div>🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵🪵</div>
+    <div class="modal" tabindex="-1" role="dialog" id="countdownModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-body">
+                <h1 id="countdown" class="text-center"></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 10 messages to show the goal status -->
+<div id="message1"></div>
+<div id="message2"></div>
+<div id="message3"></div>
+<div id="message4"></div>
+<div id="message45" class="message45"></div>
+<div id="message6"></div>
+<div id="message7"></div>
+<div id="message8"></div>
+<div id="message9"></div>
+<div id="message10"></div>
+<div id="goal-line"></div>
+
+<!-- Add this somewhere inside your body tag -->
+<div id="goal-messages"></div>
+
+<button id="start-race" class=" btn btn-primary ml-3 centered-button large-button" >出走</button> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <button id="toggleButton" class=" btn btn-primary ml-3 centered-button">非表示</button>
+    <table id="myTable">
+<div id="tableContainer"></div>
+</table>
+
+    <script>
+
+        window.addEventListener("load", function() {
+            var modal = document.getElementById('modal');
+            if (window.matchMedia("(orientation: portrait)").matches) {
+                modal.style.display = "block";
+            }
+        
+            window.addEventListener("orientationchange", function() {
+                if (window.orientation === 90 || window.orientation === -90) {
+                    modal.style.display = "none";
+                }
+            }, false);
+        }, false);
+
+
+        var $j = jQuery.noConflict();
+        function createLightning() {//雷の作成関数
+
+            var weather = localStorage.getItem('weather');//race_venueから取得　天気
+            if(weather !== 'thunder'){
+                return;
+            }
+            var path = document.getElementById('thunder');
+            var height = window.innerHeight;
+            var width = window.innerWidth;
+            var startX = Math.random() * width;
+            var startY = 0;
+            var endX = Math.random() * width;
+            var endY = height;
+
+            var points = [startX, startY];
+            while (endY - startY > 50) {
+                startX = startX + (Math.random() - 0.5) * 200;
+                startY = startY + Math.random() * 100;
+                points.push(startX, startY);
+            }
+            points.push(endX, endY);
+        
+            path.setAttribute('d', 'M' + points.join(' '));
+        }
+        setInterval(createLightning, 300);
+        
+        function setWeatherAndTime(characters) {//天気と時間帯のデザインを作成
+            var weather = localStorage.getItem('weather');//race_venueから取得　天気
+            var time = localStorage.getItem('time');//race_venueから取得　時間帯
+        
+            // Remove any existing weather/time elements
+            var existingWeatherElement = document.getElementById('weather-element');
+            if (existingWeatherElement) {
+                document.body.removeChild(existingWeatherElement);
+            }
+
+            // document.getElementById("weatherOutput").innerHTML = "今日の天気は" + weather + "です";
+            // Create a new weather element based on the current weather
+            var newWeatherElement;
+            switch(weather) {
+                case "sunny":
+                    break;
+                case "rain":
+                newWeatherElement = document.createElement('div');
+                newWeatherElement.classList.add('rains');
+                newWeatherElement.id = 'rains';  // Set the ID of the new element
+                for (let i = 0; i < 20; i++) {  // Increase the number of raindrops from 20 to 40
+                    newWeatherElement.appendChild(document.createElement('span'));
+                }
+                    break;
+                case "snow":
+                    var addSnow = 0;
+                    for(let i = 0; i < characters.length; ++i) {
+                        if (characters[i].traits.some(trait => trait.id === 1)) {
+                            addSnow = 20;
+                        }
+                    }
+
+                    // 30個の雪要素を生成
+                    for (let i = 0; i < (20 + addSnow); i++) {
+                        // 雪要素の生成
+                        const newWeatherElement = document.createElement('div');
+                        newWeatherElement.classList.add('snow');
+                        newWeatherElement.textContent = '●';
+
+                        // 雪要素の初期位置をランダムに設定
+                        newWeatherElement.style.left = Math.random() * (window.innerWidth / 3) + 'px';
+                        newWeatherElement.style.top = Math.random() * window.innerHeight + 'px';
+                    
+                        // 雪要素のアニメーション開始時間をランダムに設定（負の値）
+                        newWeatherElement.style.animationDelay = -Math.random() * 5 + 's';
+
+                        // 雪要素をbody要素に追加
+                        document.body.appendChild(newWeatherElement);
+                    }
+                    break;
+                case "thunder":
+
+                    // create a svg element
+                    newWeatherElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    newWeatherElement.id = 'svg';
+                    newWeatherElement.style.position = 'fixed';
+                    newWeatherElement.style.top = '0';
+                    newWeatherElement.style.left = '0';
+                    newWeatherElement.style.width = '100%';
+                    newWeatherElement.style.height = '75%';
+                    newWeatherElement.style.zIndex = '-1';
+                    newWeatherElement.style.pointerEvents = 'none';
+
+                    // create defs element
+                    var defsElement = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+                    // create filter element
+                    var filterElement = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+                    filterElement.id = 'glow';
+
+                    // create feGaussianBlur element
+                    var feGaussianBlurElement = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+                    feGaussianBlurElement.setAttribute('stdDeviation', '2.5');
+                    feGaussianBlurElement.setAttribute('result', 'coloredBlur');
+
+                    // create feMerge element
+                    var feMergeElement = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+
+                    // create feMergeNode elements
+                    var feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+                    feMergeNode1.setAttribute('in', 'coloredBlur');
+                    var feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+                    feMergeNode2.setAttribute('in', 'SourceGraphic');
+
+                    // create path element
+                    var pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    pathElement.id = 'thunder';
+                    pathElement.setAttribute('stroke', 'white');
+                    pathElement.setAttribute('stroke-width', '2');
+                    pathElement.setAttribute('fill', 'none');
+                    pathElement.setAttribute('filter', 'url(#glow)');
+
+                    // append elements
+                    feMergeElement.appendChild(feMergeNode1);
+                    feMergeElement.appendChild(feMergeNode2);
+                    filterElement.appendChild(feGaussianBlurElement);
+                    filterElement.appendChild(feMergeElement);
+                    defsElement.appendChild(filterElement);
+                    newWeatherElement.appendChild(defsElement);
+                    newWeatherElement.appendChild(pathElement);
+                    break;
+            }
+            
+            // Add the new weather element to the body
+            if (newWeatherElement) {
+                newWeatherElement.id = 'weather-element';
+                document.body.appendChild(newWeatherElement);
+            }
+        
+            // Set time of day
+            switch(time) {
+                case "morning":
+                    document.body.style.backgroundColor = "#aDf0ff";
+
+                    var taiyoDiv = document.createElement('div');
+                    taiyoDiv.className = 'mtaiyo';
+
+                    var me1Div = document.createElement('div');
+                    me1Div.className = 'parts me1';
+                    taiyoDiv.appendChild(me1Div);
+
+                    var me2Div = document.createElement('div');
+                    me2Div.className = 'parts me2';
+                    taiyoDiv.appendChild(me2Div);
+
+                    var kuchiDiv = document.createElement('div');
+                    kuchiDiv.className = 'parts kuchi';
+                    taiyoDiv.appendChild(kuchiDiv);
+
+                    document.body.appendChild(taiyoDiv);
+
+                    taiyoDiv.addEventListener('click', function() {
+                        // 'yurayura'クラスを追加
+                        this.classList.add('yurayura');
+
+                        // 1秒後に 'yurayura' クラスを削除
+                        setTimeout(() => { this.classList.remove('yurayura'); }, 1500);
+                    });
+
+
+
+                    break;
+                case "noon":
+                    document.body.style.backgroundColor = "rgba(234, 234, 70, 0.65)";
+                    document.body.style.opacity = 0.7;
+
+                    var taiyoDiv = document.createElement('div');
+                    taiyoDiv.className = 'ntaiyo';
+
+                    var me1Div = document.createElement('div');
+                    me1Div.className = 'parts me1';
+                    taiyoDiv.appendChild(me1Div);
+
+                    var me2Div = document.createElement('div');
+                    me2Div.className = 'parts me2';
+                    taiyoDiv.appendChild(me2Div);
+
+                    var kuchiDiv = document.createElement('div');
+                    kuchiDiv.className = 'parts kuchi';
+                    taiyoDiv.appendChild(kuchiDiv);
+
+                    document.body.appendChild(taiyoDiv);
+
+                    break;
+                case "night":
+                document.body.style.backgroundColor = "#6060c3";
+
+                var moonDiv = document.createElement('div');
+                moonDiv.className = 'moon';
+
+                document.body.appendChild(moonDiv);
+
+                moonDiv.addEventListener('click', function(){
+                    // デザインを変更する新しいクラス名に更新します
+                    moonDiv.className = 'changedMoon';
+                
+                    // body要素にflashクラスを追加して一瞬明るくします
+                    document.body.className = 'flash';
+                
+                });
+                    break;
+            }
+            return [weather, time];
+        }
+
+
+        function updateTable() {
+            // 既存の行をクリア
+            let rows = table.getElementsByTagName('tr');
+            for (let i = rows.length - 1; i > 0; i--) {
+                table.removeChild(rows[i]);
+            }
+        
+            for(let i = 0; i < characters.length; ++i) {
+                let row = document.createElement("tr");
+                row.id = `character-${i}`;
+                        
+                let staminaColor = characters[i].stamina <= 25 ? 'blue' : characters[i].stamina <= 50 ? 'lime' : characters[i].stamina <= 75 ? 'red' : 'purple';
+                let speedColor = characters[i].speed <= 25 ? 'blue' : characters[i].speed <= 50 ? 'lime' : characters[i].speed <= 75 ? 'red' : 'purple';
+                let luckColor = characters[i].luck <= 25 ? 'blue' : characters[i].luck <= 50 ? 'lime' : characters[i].luck <= 75 ? 'red' : 'purple';
+                        
+                let traits = '';
+                for(let j = 0; j < characters[i].traits.length; ++j) {
+                    traits += characters[i].traits[j].name;
+                    if(j !== characters[i].traits.length - 1) {
+                        traits += ', '; // 最後の特性でなければ、カンマとスペースを追加
+                    }
+                }
+            
+                row.innerHTML = `<td>第${i + 1}レーン　</td>
+                    <td>${characters[i].name}　</td>
+                    <td style="color: ${staminaColor}">${characters[i].stamina.toFixed(0)}　</td>
+                    <td style="color: ${speedColor}">${characters[i].speed.toFixed(0)}　</td>
+                    <td style="color: ${luckColor}">${characters[i].luck.toFixed(0)}　</td>
+                    <td>${speeds[i].toFixed(2)}　</td>
+                    <td>${probabilities[i].toFixed(2)}　</td>
+                    <td>${traits}</td>`;
+                table.appendChild(row);
+            }
+            let tableContainer = document.getElementById('tableContainer');
+
+            tableContainer.appendChild(table);
+        }
+
+        var counts = Array(10).fill(0); //進んだマス
+        var speeds = Array(10); // 頻度
+        var startDashSpeeds = Array(10);//スタートダッシュ時の頻度
+        var probabilities = Array(10);//確率
+        var startDashChanged = Array(10).fill(false);//スタートダッシュが起こったかどうかのフラグ
+        var speedChanged = Array(10).fill(false);//中盤の変化が起こったかどうかのフラグ
+        var lateSpeedChanged = Array(10).fill(false);//後半の変化が起こったかどうかのフラグ
+        var lastSprintChanged = Array(10).fill(false);//ラストスパートが起こったかどうかのフラグ
+        var traits23Changed = Array(10).fill(false);
+        var traits24Changed = Array(10).fill(false);
+        var traits25Changed = Array(10).fill(false);
+        var traits26Changed = Array(10).fill(false);
+        var traits27Changed = Array(10).fill(false);
+        var traits45Changed = Array(10).fill(false);
+        var traits46Changed = Array(10).fill(false);
+        var traits49Changed = Array(10).fill(false);
+        var timeStopCount = Array(10).fill(false);
+        var isPaused = Array(10).fill(false);
+        var positionFrag = false;
+        let failCounts = Array(10).fill(0);//失敗した回数
+        var traitsDisabled = false;
+        var place = 1;
+        var finishedEmojis = [];
+        var emojis = ['{{ horse.emoji }}', {% for cpu_horse in cpu_horses %}'{{ cpu_horse.emoji }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+        var space = '\u3000';
+        var special14 = '🌸';
+        var special15 = '💣';
+        var special16 = '🎆';
+        var special17 = '👠';
+        var special18 = '🎁';
+        var special38 = Array(4).fill(0);
+        var special39 = '💩';
+
+        {% comment %} 観客の動物たちを表示させる処理 {% endcomment %}
+        var animalsemoji = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐼", "🐻", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵", "🐔", "🦉", "🐴", "🦄", "🦓", "🦍", "🙎‍♂️", "🦦", "🐺", "🐗", "🐢", "🐳", "🐺", "🐗", "🐢"];
+        
+        function getRandomEmoji() {
+            var index = Math.floor(Math.random() * animalsemoji.length);
+            return animalsemoji[index];
+        }
+
+        window.onload = function() {
+            // 特定のdivタグのid
+            var divIds = ['animalsemoji1', 'animalsemoji2'];
+        
+            divIds.forEach(function(id) {
+                var div = document.getElementById(id);
+                if (div) {
+                    // 表示したい動物の数
+                    var numAnimals = 37;
+                    // 絵文字をランダムに生成して結合する
+                    var animals = '';
+                    for (var i = 0; i < numAnimals; i++) {
+                        var emoji = getRandomEmoji();
+                        var delay = Math.random() * 10;  // 0から10秒のランダムなディレイ
+                        animals += `<span class="animalsemoji" style="animation-delay: ${delay}s">${emoji}</span>　`;  // 絵文字の後にスペースを追加
+                    }
+                    // 生成した絵文字をdivタグに設定する
+                    div.innerHTML = animals;
+                }
+            });
+        };
+        {% comment %} 観客の動物たちを表示させる処理 {% endcomment %}
+
+
+        var characters = [
+            {
+                name: "{{horse.name}}",
+                emoji:"{{horse.emoji}}",
+                speed: {{horse.speed}} ,
+                stamina: {{horse.stamina}},
+                luck: {{horse.luck}},
+                traits: [
+                    {% for trait in horse.traits.all %}
+                        {
+                            id: {{ trait.id }},
+                            name: "{{ trait.name }}",
+                            description: "{{ trait.description }}"
+                        }{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                ]
+            }
+        ];
+
+        {% for cpu_horse in cpu_horses %}
+            characters.push(
+                {
+                    name: "{{cpu_horse.name}}",
+                    emoji:"{{cpu_horse.emoji}}",
+                    speed: {{cpu_horse.speed}},
+                    stamina: {{cpu_horse.stamina}},
+                    luck: {{cpu_horse.luck}},
+                    traits: [
+                        {% for trait in cpu_horse.traits.all %}
+                            {
+                                id: {{ trait.id }},
+                                name: "{{ trait.name }}",
+                                description: "{{ trait.description }}"
+                            }{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    ]
+                }
+            );
+        {% endfor %}
+
+        var weatherAndTimeArray = setWeatherAndTime(characters); 
+        var weatherInfo = weatherAndTimeArray[0];
+        var timeInfo = weatherAndTimeArray[1];
+      //  console.log(weatherInfo + timeInfo);//本番は消す
+
+        // ステータス系の特性条件分岐
+
+        for(let i = 0; i < characters.length; ++i) {
+            if (characters[i].traits.some(trait => trait.id === 5) && (weatherInfo === "snow")) {//雪かき
+                    characters[i].speed *= 1.1;
+                    characters[i].stamina *= 1.1;
+                    characters[i].luck *= 1.1;
+            }  
+            if (characters[i].traits.some(trait => trait.id === 6) && (weatherInfo === "thunder")) {//避雷針
+                    characters[i].speed *= 1.1;
+                    characters[i].stamina *= 1.1;
+                    characters[i].luck *= 1.1;
+            }
+            if (characters[i].traits.some(trait => trait.id === 7) && (weatherInfo === "sunny")) {//光合成
+                    characters[i].speed *= 1.1;
+                    characters[i].stamina *= 1.1;
+                    characters[i].luck *= 1.1;
+            }
+            if (characters[i].traits.some(trait => trait.id === 8) && (weatherInfo === "rain")) {//すいすい
+                    characters[i].speed *= 1.1;
+                    characters[i].stamina *= 1.1;
+                    characters[i].luck *= 1.1;
+            }
+            if (characters[i].traits.some(trait => trait.id === 12)) {
+                // If such a character exists, reduce all characters' stats by 10%
+                characters.forEach(character => {
+                    character.speed *= 0.75;
+                    character.stamina *= 0.75;
+                    character.luck *= 0.75;
+                    // Do the same for other stats if there are any...
+                });
+            }
+
+            if (characters[i].traits.some(trait => trait.id === 19)) {
+                // If such a character exists, increase speed by 10% and reduce stamina by 10%
+                characters[i].speed *= 1.1;
+                characters[i].stamina *= 0.9;
+            }
+
+            if (characters[i].traits.some(trait => trait.id === 20)) {
+                // If such a character exists, increase stamina by 10% and reduce luck by 10%
+                characters[i].stamina *= 1.1;
+                characters[i].speed *= 0.9;
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===21)) {
+                // If such a character exists, increase luck by 30% and reduce speed and stamina by 10%
+                characters[i].luck *= 1.3;
+                characters[i].speed *= 0.9;
+                characters[i].stamina *= 0.9;
+            }
+
+
+            if (characters[i].traits.some(trait => trait.id ===28)) {
+                if (timeInfo=='morning') {
+                    characters[i].luck *= 1.1;
+                } else if (timeInfo=='night') {
+                    characters[i].speed *= 0.95;
+                }
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===29)) {
+                if (timeInfo=='noon') {
+                    characters[i].speed *= 1.1;
+                }
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===30)) {
+                if (timeInfo=='night') {
+                    characters[i].stamina *= 1.1;
+                } else if (timeInfo=='morning') {
+                    characters[i].speed *= 0.9;
+                }
+            }
+
+
+            if (characters[i].traits.some(trait => trait.id ===46)) {
+                // Calculate the average stats of the other horses
+                let otherCharacters = characters.filter((_, index) => index !== i);
+                let avgSpeed = otherCharacters.reduce((total, character) => total + character.speed, 0) / otherCharacters.length;
+                let avgStamina = otherCharacters.reduce((total, character) => total + character.stamina, 0) / otherCharacters.length;
+                let avgLuck = otherCharacters.reduce((total, character) => total + character.luck, 0) / otherCharacters.length;
+
+                // Set the character's stats to the average of its own stats and the average stats of the other horses
+                characters[i].speed = (characters[i].speed + avgSpeed) / 2;
+                characters[i].stamina = (characters[i].stamina + avgStamina) / 2;
+                characters[i].luck = (characters[i].luck + avgLuck) / 2;
+            }
+
+            if (characters[i].traits.some((trait) => trait.id ===47)){
+                counts[i] = -10;
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===38)) {//キャラの絵文字を取得（忍者）
+                special38.splice(i, 0 , characters[i].emoji);
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===40)) {//全敵の全ステータス5%減少＋自分のステータスが減少の合計の50%上がる（吸います）
+                var totalSpeeds = 0;
+                var totalStaminas = 0;
+                var totalLucks = 0;
+
+
+                for(let character of characters) {
+                    if (!(character == characters[i])) {
+                        totalSpeeds += character.speed * 0.05;
+                        totalStaminas += character.stamina * 0.05;
+                        totalLucks += character.luck * 0.05;
+
+                        character.speed *= 0.95;
+                        character.stamina *= 0.95;
+                        character.luck *= 0.95;
+                    }
+                }
+
+                characters[i].speed += totalSpeeds / 2;
+                characters[i].stamina += totalStaminas / 2;
+                characters[i].luck += totalLucks / 2;
+            }
+
+            if (characters[i].traits.some(trait => trait.id ===41)) {//全敵の全ステータス7%減少＋自分のステータスが減少の合計の50%上がる（吸います吸います）
+                var totalSpeeds = 0;
+                var totalStaminas = 0;
+                var totalLucks = 0;
+
+
+                for(let character of characters) {
+                    if (!(character == characters[i])) {
+                        totalSpeeds += character.speed * 0.07;
+                        totalStaminas += character.stamina * 0.07;
+                        totalLucks += character.luck * 0.07;
+
+                        character.speed *= 0.93;
+                        character.stamina *= 0.93;
+                        character.luck *= 0.93;
+                    }
+                }
+
+                characters[i].speed += totalSpeeds / 2;
+                characters[i].stamina += totalStaminas / 2;
+                characters[i].luck += totalLucks / 2;
+            }
+            if (characters[i].traits.some(trait => trait.id ===42)) {//全敵の全ステータス10%減少＋自分のステータスが減少の合計の50%上がる（とことん吸います）
+                var totalSpeeds = 0;
+                var totalStaminas = 0;
+                var totalLucks = 0;
+
+
+                for(let character of characters) {
+                    if (!(character == characters[i])) {
+                        totalSpeeds += character.speed * 0.1;
+                        totalStaminas += character.stamina * 0.1;
+                        totalLucks += character.luck * 0.1;
+
+                        character.speed *= 0.9;
+                        character.stamina *= 0.9;
+                        character.luck *= 0.9;
+                    }
+                }
+
+                characters[i].speed += totalSpeeds /2;
+                characters[i].stamina += totalStaminas /2;
+                characters[i].luck += totalLucks /2;
+            }
+            
+            if (characters[i].traits.some(trait => trait.id === 43)) {//ドリームチームが２体以上いると全ステータスが15%上昇（ドリームチーム）
+                var traitsNameList = characters.map(character => character.traits.map(trait => trait.name)).reduce((acc, val) => acc.concat(val), []);
+                var isDreamTeamTwice = traitsNameList.filter(name => name === "ドリームチーム").length >= 2;
+
+                if (isDreamTeamTwice) {
+                    characters[i].speed *= 1.15;
+                    characters[i].stamina *= 1.15;
+                    characters[i].luck *= 1.15;
+                }
+
+                //console.log(traitsNameList);
+            }
+            
+            if (characters[i].traits.some(trait => trait.id === 44)) {//自分を含む誰かのステータスが30％減少(不幸を呼ぶもの)
+                var randomCharaNumber = Math.floor(Math.random() * 4);
+                var randomStatusNumber = Math.floor(Math.random() * 3 + 1);
+
+                //console.log("Random Status Number: " + randomStatusNumber);
+                //console.log("Random Chara Number: " + randomCharaNumber);
+
+                if (randomStatusNumber == 1) {
+                    characters[randomCharaNumber].speed *= 0.7;
+                } else if (randomStatusNumber == 2) {
+                    characters[randomCharaNumber].stamina *= 0.7;
+                } else {
+                    characters[randomCharaNumber].luck *= 0.7;
+                }
+            }
+        }
+
+        //以下が周期(speeds)と確率(probabilities)の計算式
+        for(let i = 0; i < characters.length; ++i) {
+            let baseSpeed = 450 - (characters[i].speed*3 + characters[i].stamina/2 + characters[i].luck/10)*150/360;
+            let baseProbability = (50 + ((characters[i].speed + characters[i].stamina*2 + characters[i].luck*5)*25/700))/100;
+
+            // 特性IDが22を持つキャラクターは乱数幅を10％に
+            let variationRate = characters[i].traits.some(trait => trait.id === 22) ? 0.1 : 0.02;
+
+            // 乱数を生成して、それを±1%の変動とする
+            let speedVariation = baseSpeed * ((Math.random() * variationRate * 2) - variationRate);
+            let probabilityVariation = baseProbability * ((Math.random() * variationRate * 2) - variationRate);
+
+            speeds[i] = baseSpeed + speedVariation;
+            probabilities[i] = baseProbability + probabilityVariation;
+        }
+        let baseSpeeds = [...speeds];
+        let baseProbabilities = [...probabilities];
+
+
+
+
+
+        let table = document.createElement("table"); 
+        table.className = "table table-striped";
+        let header = document.createElement("tr"); 
+        
+        header.innerHTML = `<th> 　レーン　 </th>
+                            <th> 　名前　 </th>
+                            <th>　スタミナ　</th>
+                            <th>　スピード　</th>
+                            <th>　運　</th>
+                            <th> 　周期　 </th>
+                            <th> 　確率　 </th>
+                            <th> 　特性 </th>`;
+        
+        table.appendChild(header); 
+
+        document.getElementById('toggleButton').addEventListener('click', function () {
+        var table = document.getElementById('myTable');
+        var button = document.getElementById('toggleButton');
+
+          // 表が現在表示されている場合は非表示にし、ボタンのテキストを「表示」に更新
+        if (table.style.display !== 'none') {
+            table.style.display = 'none';
+            button.textContent = '表示';
+        }
+        // 表が現在非表示の場合は表示し、ボタンのテキストを「非表示」に更新
+        else {
+            table.style.display = '';
+            button.textContent = '非表示';
+        }
+        });
+
+  
+ 
+
+    // ボタンのクリックイベントリスナーを設定
+    document.getElementById('toggleButton').addEventListener('click', function() {
+        if (tableContainer.style.display === "none") {
+            tableContainer.style.display = "block";
+        } else {
+            tableContainer.style.display = "none";
+        }
+    });
+
+
+        let raceTableElement = document.getElementById("racetable");
+        raceTableElement.appendChild(table);
+
+        document.body.appendChild(table); 
+        document.getElementById('racetable').appendChild(table);// Add the table to the body
+
+        updateTable();
+
+        document.getElementById('start-race').addEventListener('click', function() {
+            this.style.display = 'none';//出走ボタンを消す
+            var countdownModal = $('#countdownModal');
+            var countdown = $('#countdown');
+            countdownModal.modal('show');
+            countdown.text('3');
+        
+            // レース中のBGMを再生
+            var racebgm = "{% static 'audio/race_bgm.mp3' %}";
+
+
+            for(let i = 0; i < characters.length; ++i) {
+                // trait.id 31の時に祭りっぽいBGMが流れる（お祭り男)
+                if (characters[i].traits.some(trait => trait.id === 31)) {
+                    racebgm = "{% static 'audio/omaturi.mp3' %}";
+                    break;
+                // trait.id 32の時にラスボスっぽいBGMが流れる（ラスボス)
+                }else if (characters[i].traits.some(trait => trait.id === 32)) {
+                    racebgm = "{% static 'audio/vsmaou.mp3' %}";
+                    break;
+                // trait.id 33の時にシャイニングスターBGMが流れる（シャイニングスター)
+                }else if (characters[i].traits.some(trait => trait.id === 33)) {
+                    racebgm = "{% static 'audio/syainingstar.mp3' %}";
+                    break;
+                // trait.id 34の時にレトロゲームの戦闘曲が流れる（レトロゲーム好き)
+                }else if (characters[i].traits.some(trait => trait.id === 34)) {
+                    racebgm = "{% static 'audio/retoro_bgm.mp3' %}";
+                    break;
+                // trait.id 35の時にらららコッペパンBGMが流れる（らららコッペパン)
+                }else if (characters[i].traits.some(trait => trait.id === 35)) {
+                    racebgm = "{% static 'audio/rararakopepan.mp3' %}";
+                    break;
+                // trait.id 36の時に8の字サーキットBGMが流れる（サーキット)
+                }else if (characters[i].traits.some(trait => trait.id === 36)) {
+                    racebgm = "{% static 'audio/surkit.mp3' %}";
+                    break;
+                // trait.id 37の時にグルメレースっぽいBGMが流れる（星の)
+                }else if (characters[i].traits.some(trait => trait.id === 37)) {
+                    racebgm = "{% static 'audio/gurume_race.mp3' %}";
+                    break;
+                }
+            }
+
+            var bgm = new Audio(racebgm);
+            bgm.volume = 1; // 音量1% 
+            bgm.play();
+
+            // document.body.classList.add("thunderstorm");
+            
+
+            setTimeout(function() {
+                countdown.text('2');
+                setTimeout(function() {
+                    countdown.text('1');
+                    setTimeout(function() {
+                        countdown.text('スタート！');
+                        setTimeout(function() {
+                            countdownModal.modal('hide');
+                            // Start the race here
+                            var intervals = [];
+                            for(let i = 0; i < characters.length; ++i) {
+                                // If the character has trait.id 13, start 3 squares ahead
+                                if (characters[i].traits.some(trait => trait.id === 13)) {
+                                    var div = document.getElementById('editable' + (i + 1));
+
+                                    // Check if the character also has trait.id 14
+                                    if (characters[i].traits.some(trait => trait.id === 14)) {
+                                        // If yes, insert the special character instead of spaces
+                                        div.innerHTML = `<span class="emoji">${special14}</span><span class="emoji">${special14}</span><span class="emoji">${special14}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 15)){
+                                        // If no, insert spaces as usual
+                                        div.innerHTML = `<span class="emoji">${special15}</span><span class="emoji">${special15}</span><span class="emoji">${special15}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 16)){
+                                        // If no, insert spaces as usual
+                                        div.innerHTML = `<span class="emoji">${special16}</span><span class="emoji">${special16}</span><span class="emoji">${special16}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 17)){
+                                        // If no, insert spaces as usual
+                                        div.innerHTML = `<span class="emoji">${special17}</span><span class="emoji">${special17}</span><span class="emoji">${special17}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 18)){
+                                        // If no, insert spaces as usual
+                                        div.innerHTML = `<span class="emoji">${special18}</span><span class="emoji">${special18}</span><span class="emoji">${special18}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 38)){
+                                        div.innerHTML = `<span class="emoji" style="opacity:0.1;">${special38[i]}</span><span class="emoji" style="opacity:0.1;">${special38[i]}</span><span class="emoji" style="opacity:0.1;">${special38[i]}</span>` + div.innerHTML;
+                                    } else if (characters[i].traits.some(trait => trait.id === 39)){
+                                        div.innerHTML = `<span class="emoji">${special39}</span><span class="emoji">${special39}</span><span class="emoji">${special39}</span>` + div.innerHTML;
+                                    } else {
+                                        // If no, insert spaces as usual
+                                        div.innerHTML = `<span class="emoji">${space}</span><span class="emoji">${space}</span><span class="emoji">${space}</span>` + div.innerHTML;
+                                    }
+                            
+                                    // Increment counts[i] by 3
+                                    counts[i] += 3;
+                                    // Play the sound
+                                    var soundFileUrl = "{% static 'audio/huraing.mp3' %}";
+                                    var audio = new Audio(soundFileUrl);
+                                    audio.volume = 0.01; // 音量3% 
+                                    audio.play();
+                                }
+                        
+
+                                // The first 5 counts are start dash. The higher the lucky, the faster.
+                                startDashSpeeds[i] = speeds[i];
+                                var startDashProbability = characters[i].luck/100/2;
+                                startDashProbability += characters[i].traits.some(trait => trait.id === 10) ? 0.3 : 0;
+                                //console.log("Start Dash Probability for character " + i + ": " + startDashProbability); //デバック用
+                                if (Math.random() < (startDashProbability)) {
+                                    speeds[i] -= 150;
+                                    startDashChanged[i] = true;
+                                    updateTable();
+                                    //console.log("Start Dash activated for character " + i); //デバック用
+                                }
+                                let moveEmoji = function() {
+                                    var div = document.getElementById('editable' + (i + 1));
+                                    if(counts[i] < 70){
+                                        var soundFileUrl = "{% static 'audio/2go.mp3' %}";
+                                        if (characters[i].traits.some(trait => trait.id === 23) && !traitsDisabled) {
+                                            // Check if there are other characters within 3 squares
+                                            let isNear = counts.some((count, index) => 
+                                                index !== i && Math.abs(count - counts[i]) <= 3
+                                            );
+                                            if (isNear && !traits23Changed[i]) {
+                                                speeds[i] = baseSpeeds[i] / 1.05;
+                                                probabilities[i] = baseProbabilities[i] * 1.05;
+                                                traits23Changed[i] = true;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            } else {
+                                                speeds[i] = baseSpeeds[i];
+                                                probabilities[i] = baseProbabilities[i];
+                                                traits23Changed[i] = false;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            }
+                                        }
+                                        if (characters[i].traits.some(trait => trait.id === 24) && !traits24Changed[i] && !traitsDisabled) {
+                                            // Check if the character is in the first place
+                                            let isFirst = counts[i] >= Math.max(...counts);
+                                            if (isFirst) {
+                                                speeds[i] = baseSpeeds[i] / 0.95;
+                                                probabilities[i] = baseProbabilities[i] * 0.95;
+                                                traits24Changed[i] = true;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            } else {
+                                                speeds[i] = baseSpeeds[i];
+                                                probabilities[i] = baseProbabilities[i];
+                                                traits24Changed[i] = false;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            }
+                                        }
+                                        if (characters[i].traits.some(trait => trait.id === 25) && !traitsDisabled) {
+                                            // Check if the character is in the first place
+                                            let isFirst = counts[i] >= Math.max(...counts);
+                                            if (isFirst) {
+                                                speeds[i] = baseSpeeds[i] / 1.05;
+                                                probabilities[i] = baseProbabilities[i] * 1.05;
+                                                traits25Changed[i] = true;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            } else {
+                                                speeds[i] = baseSpeeds[i];
+                                                probabilities[i] = baseProbabilities[i];
+                                                traits25Changed[i] = false;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            }
+                                        }
+                                        if (characters[i].traits.some(trait => trait.id === 26) && !traitsDisabled) {
+                                            // Check if the character is in the last place
+                                            let isLast = counts[i] <= Math.min(...counts);
+                                            if (isLast) {
+                                                speeds[i] = baseSpeeds[i] / 1.2;
+                                                probabilities[i] = baseProbabilities[i] * 1.2;
+                                                traits26Changed[i] = true;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            } else {
+                                                speeds[i] = baseSpeeds[i];
+                                                probabilities[i] = baseProbabilities[i];
+                                                traits26Changed[i] = false;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            }
+                                        }
+
+                                        if (characters[i].traits.some(trait => trait.id === 27) && !traitsDisabled) {
+                                            // Check if the character is in the last place
+                                            let isLast = counts[i] <= Math.min(...counts);
+                                            if (isLast) {
+                                                speeds[i] = baseSpeeds[i] / 0.95;
+                                                probabilities[i] = baseProbabilities[i] * 0.95;
+                                                traits27Changed[i] = true;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            } else {
+                                                speeds[i] = baseSpeeds[i];
+                                                probabilities[i] = baseProbabilities[i];
+                                                traits27Changed[i] = false;
+                                                speedChanged[i] = false;
+                                                lateSpeedChanged[i] = false;
+                                                lastSprintChanged[i] = false;
+                                                updateTable();
+                                            }
+                                        }
+                                        if (characters[i].traits.some(trait => trait.id === 47)&&counts[i] >= 0 && !traits46Changed[i] && !traitsDisabled) {
+                                            baseSpeeds[i] = speeds[i];
+                                            speeds[i] = speeds[i] / 1.2;
+                                            baseProbabilities[i] = probabilities[i];
+                                            probabilities[i] = probabilities[i] * 1.2;
+                                            traits46Changed[i] = true;
+                                            speedChanged[i] = false;
+                                            lateSpeedChanged[i] = false;
+                                            lastSprintChanged[i] = false;
+                                            updateTable();
+                                        }
+                                        if (characters[i].traits.some(trait => trait.id ===49) && !traits49Changed[i] && counts.some(count => count >= 70) && !traitsDisabled){
+                                            speeds[i] = baseSpeeds[i] / 1.5;
+                                            probabilities[i] = baseProbabilities[i] * 1.5;
+                                            traits49Changed[i] = true;
+                                            speedChanged[i] = false;
+                                            lateSpeedChanged[i] = false;
+                                            lastSprintChanged[i] = false;
+                                            updateTable();
+                                        }
+                                        var footprint;
+                                        var audio = new Audio(soundFileUrl);
+                                        // trait.id 14の時に🌸を道に咲かせる処理（はなさかじいさん)
+                                        if (characters[i].traits.some(trait => trait.id === 14)) {
+                                            footprint = special14;
+                                        // trait.id 15の時に💣を道に置く処理（ボンバーマン)
+                                        } else if (characters[i].traits.some(trait => trait.id === 15)) {
+                                            footprint = special15;
+                                        // trait.id 16の時に🎆を道に咲かせる処理（花火師)
+                                        } else if (characters[i].traits.some(trait => trait.id === 16)) {
+                                            footprint = special16;
+                                        // trait.id 17の時に👠を道に忘れる処理（シンデレラ)
+                                        } else if (characters[i].traits.some(trait => trait.id === 17)) {
+                                            footprint = special17;
+                                        // trait.id 18の時に🎁を道に配る処理（サンタさん)
+                                        } else if (characters[i].traits.some(trait => trait.id === 18)) {
+                                            footprint = special18;
+                                        } else if (characters[i].traits.some(trait => trait.id === 38)) {//残像を残す
+                                            //console.log("emoji : " + special38[i]);
+
+                                            footprint = special38[i];
+                                        } else if (characters[i].traits.some(trait => trait.id === 39)) {//30%で💩を置く
+                                            if (Math.random() < 0.3) {
+                                                footprint = special39;
+                                            } else {
+                                                footprint = space;
+                                            }
+                                        // それ以外の時にスペースを入れる処理（通常時）
+                                        } else {
+                                            footprint = space;
+                                        }
+                                        if(Math.random() < probabilities[i] && counts[i] < 70){
+                                            if (Math.random() < characters[i].luck / 100 * 0.15){
+                                                counts[i]+=2;
+                                                if(counts[i]>=0){
+                                                    if (!(characters[i].traits.some(trait => trait.id === 38))) {
+                                                        div.innerHTML = `<span class="emoji">${footprint}</span>` + `<span class="emoji">${footprint}</span>` + div.innerHTML;
+                                                    } else {
+                                                        div.innerHTML = `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + div.innerHTML;
+                                                    }
+                                                }
+                                                // 効果音を再生
+                                                audio.volume = 0.03; // 音量3%
+                                                audio.play();
+                                            } else{
+                                                counts[i] += 1;
+                                                if(counts[i]>=0){
+                                                    if (!(characters[i].traits.some(trait => trait.id === 38))) {
+                                                        div.innerHTML = `<span class="emoji">${footprint}</span>` + div.innerHTML;
+                                                    } else {
+                                                        div.innerHTML = `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + div.innerHTML;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            failCounts[i]++;
+                                            if((characters[i].traits.some(trait => trait.id === 48)) && failCounts[i] == 8 && !traitsDisabled){
+                                                counts[i] += 3;
+                                                failCounts[i] = 0;
+                                                //console.log(`counts: ${counts[i]}`, "character", characters[i]);
+                                                if(counts[i]>=0){
+                                                    if (!(characters[i].traits.some(trait => trait.id === 38))) {
+                                                        div.innerHTML = `<span class="emoji">${footprint}</span>`+ `<span class="emoji">${footprint}</span>` + `<span class="emoji">${footprint}</span>` + div.innerHTML;
+                                                    } else {
+                                                        div.innerHTML = `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + `<span class="emoji" style="opacity:0.3;">${footprint}</span>` + div.innerHTML;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if(counts[i] >= 5 && startDashChanged[i]){  // スタートダッシュ終了後は速度を元に戻す
+                                            speeds[i] = startDashSpeeds[i];
+                                            startDashChanged[i] = false;
+                                            clearInterval(intervals[i]);
+                                            intervals[i] = setInterval(moveEmoji, speeds[i]);
+                                            updateTable();
+                                        }
+                                        if(counts[i] >= 30 && !speedChanged[i]){  // レースの中盤で速度を変更
+                                            speeds[i] += 50-characters[i].stamina*50/100;  // 速度を増やすとキャラクターの進行速度が減少します
+                                            probabilities[i] -= 0.02-characters[i].stamina/100*0.02
+                                            speedChanged[i] = true;
+                                            clearInterval(intervals[i]);
+                                            intervals[i] = setInterval(function(){moveEmoji(i);}, speeds[i]);
+                                            updateTable();
+                                        }
+                                        if(counts[i] >= 45 && !lateSpeedChanged[i]){ //){
+                                            speeds[i] += 80-characters[i].stamina*80/100;
+                                            probabilities[i] -= 0.03-characters[i].stamina/100*0.03
+                                            lateSpeedChanged[i] = true;
+                                            clearInterval(intervals[i]);
+                                            intervals[i] = setInterval(moveEmoji, speeds[i]);
+                                            updateTable();
+                                        }
+
+                                        if(counts[i]>=50 && characters[i].traits.some(trait => trait.id === 45) && !traits45Changed[i]){
+                                            traits45Changed[i] = true;
+                                            let oldProbabilities = [...probabilities];
+                                            traitsDisabled = true;
+                                            // 全ての確率を0に設定
+                                            for (let j = 0; j < probabilities.length; j++) {
+                                                probabilities[j] = 0;
+                                                updateTable();
+                                            }
+                                            
+                                            // Play the sound
+                                            
+                                            var soundFileUrl = "{% static 'audio/timestop.mp3' %}";
+                                            var audio45 = new Audio(soundFileUrl);
+                                            audio45.volume = 0.5; // 音量3% 
+                                            audio45.play();    
+                                        
+                                            var messageElement = document.getElementById('message45');
+                                            messageElement.textContent = 'タイムキーパー発動！時よとまれ！';
+                                            messageElement.style.display = 'block';
+
+                                        
+
+                                             // 3秒後にメッセージを非表示にする
+                                            setTimeout(function() {
+                                                messageElement.style.display = 'none';
+                                                probabilities = [...oldProbabilities];
+                                                updateTable();
+                                                traitsDisabled = false;
+                                                counts[i] += 3;
+                                                var div = document.getElementById('editable' + (i + 1));
+                                                div.innerHTML = `<span class="emoji">${space}</span><span class="emoji">${space}</span><span class="emoji">${space}</span>` + div.innerHTML;
+                                            }, 3000);
+                                        }
+
+                                        var lastSprintCount = characters[i].traits.some(trait => trait.id === 11) ? 55 : 60;
+                                        if(counts[i] >= lastSprintCount && !lastSprintChanged[i]){ // ラストスパート機能
+                                            speeds[i] -= (characters[i].stamina*2+characters[i].speed*3)*150/500;
+                                            lastSprintChanged[i] = true;
+                                            clearInterval(intervals[i]);
+                                            intervals[i] = setInterval(moveEmoji, speeds[i]);
+                                            updateTable();
+                                        }
+                                    } else {
+                                        clearInterval(intervals[i]);
+                                        var goalMessage = document.createElement('div');
+
+                                        goalMessage.className = 'goal-message';
+                                        if (place === 1) {
+                                            goalMessage.textContent =  emojis[i] + ' 　順位：' + place + '位🥇 ';
+                                            goalMessage.style.backgroundColor = 'gold';  // Gold for 1st place
+                                        } else if (place === 2) {
+                                            goalMessage.textContent =  emojis[i] + ' 　順位：' + place + '位🥈 ';
+                                            goalMessage.style.backgroundColor = 'silver';  // Silver for 2nd place
+                                        } else if (place === 3) {
+                                            goalMessage.textContent =  emojis[i] + ' 　順位：' + place + '位🥉 ';
+                                            goalMessage.style.backgroundColor = '#cd7f32';  // Bronze for 3rd place
+                                        } else {
+                                            goalMessage.textContent =  emojis[i] + ' 　順位：' + place+ '位 ';
+                                            goalMessage.style.backgroundColor = '#ADD8E6'; // Light blue for other places
+                                        }
+                                        document.getElementById('goal-messages').appendChild(goalMessage);
+
+
+                                        // finishedEmojis.push('順位' + place + '：' + characters[i].name + emojis[i] + ', speed: ' + characters[i].speed + ', stamina: ' + characters[i].stamina + ', luck: ' + characters[i].luck+ ' Trial Frequency  ' + speeds[i].toFixed(2)  + ', Probability : ' + probabilities[i].toFixed(2));
+                                        //ゴール時の効果音
+                                        var soundFileUrl = "{% static 'audio/goal.mp3' %}";
+                                        var audiogoal = new Audio(soundFileUrl);
+                                        audiogoal.volume = 0.03; // 音量3% 
+                                        audiogoal.play();
+                                        finishedEmojis.push('順位' + place + '：' + characters[i].name + emojis[i] )
+                                        if (i==0 && !positionFrag){
+                                            $j.ajax({
+                                                url: '/race/set_session/',  // セッションデータを設定するエンドポイント
+                                                method: 'POST',
+                                                data: {
+                                                    'horse_position': place,
+                                                    'csrfmiddlewaretoken': '{{ csrf_token }}' 
+                                                }
+                                            });
+                                            positionFrag = true;
+                                        }
+                                        place++;
+                                        if(finishedEmojis.length == characters.length){
+                                            //document.body.innerHTML += '<br>' + finishedEmojis.join('<br>');
+                                            // 全キャラクターがゴールした後
+                                            localStorage.setItem('finishedEmojis', JSON.stringify(finishedEmojis));
+                                            //console.log(finishedEmojis);  finishedEmojisの中身をコンソールに表示
+                                        
+                                            // 2秒後に順位一覧ページに移動
+                                            setTimeout(function() {
+                                                // window.location.href = 'results.html'; // 'results.html'は順位一覧ページのURL
+                                                window.location.href = '/race/results/{{horse.id}}/'; // '/results/'は順位一覧ページのURL
+
+                                            }, 2000);
+                                        }
+                                    }
+                                };
+                                intervals[i] = setInterval(moveEmoji, speeds[i]);
+                            }
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        });
+
+    </script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

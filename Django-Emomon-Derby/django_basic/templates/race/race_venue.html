@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    body {
+      font-size: 20px; 
+    }
+    .character-card {
+      border: 1px solid #cccccc; 
+      padding: 5px;
+      margin: 35px 0 5px 5px;
+    }
+    .name {
+      border-right: 1px solid #cccccc; 
+      padding-right: 10px;
+      margin-right: 10px;
+      margin-bottom: 15px; 
+      padding-bottom: 10px;
+    }
+    .area {
+      margin-bottom: 5px; 
+      padding-bottom: 4px;
+    }
+    .goRace {
+      position: fixed;
+      bottom: 5%;
+      right: 8%; 
+    }
+    .large-button {
+            font-size: 24px;  /* この値を調整してボタンのテキストの大きさを変えることができます */
+            padding: 10px 24px;  /* この値を調整してボタン自体の大きさを変えることができます */
+        }
+    .weather {
+      position: absolute;
+      top: 5%;
+      right: 30%;
+      text-align: center; 
+    }
+    .small-margin {
+      margin-bottom: 10px;
+    }
+    .allArea {
+      height: 130px;
+      width: 760px;
+      /* margin-bottom: 5px;
+      padding-bottom: 4px; */
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid"> 
+    <div class="row">
+      <div class="col-4 text-left">
+        <h2 class="my-4">出走エモモン一覧</h2>
+      </div>
+      <div class="col-4 text-center weather">
+        <span class="my-2" style="font-size: 20px;">レース気候　</span>
+        <span id="weatherAndTime" class="my-4" style="font-size: 30px;"></span>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="character-card mx-2 text-center">
+        <div class="d-flex justify-content-between allArea">
+          <div class="mb-0 name">
+            <p class="mb-0"><strong style="font-size: 90px;">{{ horse.emoji }}</strong></p>
+          </div>
+          <div class="stats" style="width: 600px; height: 1px;">
+            <p class="mb-0 area" style="font-size: 30px;"><strong>{{ horse.name }}</strong></p>
+            <p class="small-margin">🚩スタミナ： <span style="font-size: 25px;">{{ horse.stamina }}</span>　　 👟スピード： <span style="font-size: 25px;">{{ horse.speed }}</span>　　 🔖運： <span style="font-size: 25px;">{{ horse.luck }}</span></p>
+            <p class="small-margin">特性：
+              {% for trait in horse.traits.all %}
+                {% if forloop.first %}
+                  {{ trait.name }}
+                {% else %}
+                  , {{ trait.name }}
+                {% endif %}
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% for cpu_horse in cpu_horses %}
+    <div class="row justify-content-center">
+      <div class="character-card mx-2 text-center">
+        <div class="d-flex justify-content-between allArea">
+          <div class="mb-0 name">
+            <p class="mb-0 small-margin" style="width: 200;"><strong style="font-size: 90px;">{{ cpu_horse.emoji }}</strong></p>
+          </div>
+          <div class="stats" style="width: 600px; height: 1px;">
+            <p class="mb-0 area" style="font-size: 30px;"><strong>{{ cpu_horse.name }}</strong></p>
+            <p class="small-margin">🚩スタミナ： <span style="font-size: 25px;">{{ cpu_horse.stamina }}</span>　　 👟スピード： <span style="font-size: 25px;">{{ cpu_horse.speed }}</span>　　 🔖運： <span style="font-size: 25px;">{{ cpu_horse.luck }}</span></p>
+            <p class="small-margin" style="font-size: 18px;">特性：
+              {% for trait in cpu_horse.traits.all %}
+                {% if forloop.first %}
+                  {{ trait.name }}
+                {% else %}
+                  , {{ trait.name }}
+                {% endif %}
+              {% endfor %}
+            </p>    
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div id="character-cards">
+      <!-- ここにJavaScriptで生成したHTML要素が追加されます -->
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center" >
+      <button class="goRace btn btn-primary large-button" id="raceButton" onclick="goToNextPage()">レースへ進む</button>
+    </div>
+  </div>
+
+  <script>
+
+    // 天候生成関数
+    function generateWeather(horse, cpu_horses) {
+      var weather;
+    
+      var horseTraits = [ {% for trait in horse.traits.all %}'{{ trait.name }}',{% endfor %}, 
+        {% for cpu_horse in cpu_horses %}
+          {% for trait in cpu_horse.traits.all %}
+            '{{ trait.name }}',
+          {% endfor %}
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}];
+    
+    
+      // トレイトをチェックして天気を設定
+      if ((horseTraits.includes('雷神')) || (horseTraits.includes('晴れ男')) || (horseTraits.includes('雨女')) || (horseTraits.includes('新潟県民'))) {
+        if (horseTraits.includes('雷神')) {
+          weather = 'thunder';
+        } else if (horseTraits.includes('晴れ男')) {
+          weather = "sunny";
+        } else if (horseTraits.includes('雨女')) {
+          weather = 'rain';
+        } else if (horseTraits.includes('新潟県民')) {
+          weather = 'snow';
+        }
+      } else {
+        var weatherNumber = Math.floor(Math.random() * 10) + 1;
+        switch(true) {
+          case (weatherNumber >= 1 && weatherNumber <= 4):
+            weather = "sunny";
+            break;
+          case (weatherNumber >= 5 && weatherNumber <= 7):
+            weather = "rain";
+            break;
+          case (weatherNumber >= 8 && weatherNumber <= 9):
+            weather = "snow";
+            break;
+          case (weatherNumber == 10):
+            weather = "thunder";
+            break;
+          }
+        }
+      return weather;
+    }
+
+    // 時間帯生成関数
+    function generateTime() {
+      var timeNumber = Math.floor(Math.random() * 3) + 1;
+      var time;
+      switch(timeNumber) {
+        case 1:
+          time = "morning";
+          break;
+        case 2:
+          time = "noon";
+          break;
+        case 3:
+          time = "night";
+          break;
+      }
+      return time;
+    }
+
+    // 英語の天候を日本語に変換する関数
+    function translateWeather(weather) {
+      var weatherTranslations = {
+        "sunny": "晴れ",
+        "rain": "雨",
+        "snow": "雪",
+        "thunder": "雷"
+      };
+      return weatherTranslations[weather];
+    }
+
+    // 英語の時間帯を日本語に変換する関数
+    function translateTime(time) {
+
+      var timeTranslations = {
+        "morning": "朝",
+        "noon": "昼",
+        "night": "夜"
+      };
+      return timeTranslations[time];
+    }
+
+    // レースへ進むボタンを押したときにレース画面に遷移する関数
+    function goToNextPage() {
+      window.location.href = '/race/uma_uma/{{horse.id}}'; 
+    }
+
+    // 生成した天候と時間帯をローカルストレージに保存
+    var weather = generateWeather("{{horse}}"," {{cpu_horses}}"); 
+    var time = generateTime();
+    localStorage.setItem('weather', weather);
+    localStorage.setItem('time', time);
+    
+    // 生成した天候と時間帯を表示
+    document.getElementById('weatherAndTime').innerText = translateWeather(weather) + " / " + translateTime(time);
+
+  </script>
+</body>
+</html>

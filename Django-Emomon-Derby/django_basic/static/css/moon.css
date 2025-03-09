@@ -1,0 +1,42 @@
+body.flash {
+    animation: flash 0.25s;
+}
+
+@keyframes flash {
+    0% {background-color: initial;}
+    50% {background-color: #ffffff;}
+    100% {background-color: initial;}
+}
+
+.moon {
+    width: 100px;
+    height: 100px;
+    background: #FFEDA1;
+    border-radius: 50%;
+
+    box-shadow: 20px -12px 30px rgba(0,0,0,.5) inset,
+                0 0 10px #a99e71,
+                0 0 20px #a99e71,
+                0 0 30px #a99e71;
+    
+    position: absolute;
+    right: 7%;
+    top: 5%;
+    transform: translate(50%, -50%);
+}
+
+.changedMoon {
+    width: 100px;
+    height: 100px;
+    background: #FFEDA1;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #FFEDA1,
+                0 0 20px #FFEDA1,
+                0 0 30px #FFEDA1,
+                0 0 40px #FFEDA1,
+                0 0 50px #FFEDA1;
+                position: absolute;
+                right: 7%;
+                top: 5%;
+                transform: translate(50%, -50%);
+}

@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load my_filters %}
+{% block content %}
+    <div class="container">
+        <!-- Horse Display Section -->
+        {% if horse.image %}
+            <img src="{{ horse.image.url }}" alt="{{ horse.name }}">
+        {% endif %}
+        <!-- Horse Status Chart Section -->
+        <h2 class="card-title">詳細{% if horse.retired %}（引退済みです）{% endif %}</h2>
+        <div class="card mt-4">
+            <div class="card-body">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <h1 class="emoji">{{ horse.emoji }} </h1>
+                        <h1>名前：{{ horse.name }} </h1>
+                    </div>
+                    <svg id="statusChart" width="600" height="600" viewBox="0 0 400 400"></svg>
+                </div>
+                {% if not horse.retired %}
+                <h2 class="card-title">特別合宿</h2>
+                <p>
+                    特別合宿は一つの能力に特化した訓練を行います。<br>
+                    効果：トレーニング回数が10回減り、選択したステータスが20～40上がります。<br>
+                    費用：¥800
+                </p>
+                <a href="{% url 'horse:train_stamina' horse.id %}" class="btn btn-primary" onclick="return confirm('本当によろしいですか？');">スタミナを訓練する</a>
+                <a href="{% url 'horse:train_speed' horse.id %}" class="btn btn-primary" onclick="return confirm('本当によろしいですか？');">スピードを訓練する</a>
+                <a href="{% url 'horse:train_luck' horse.id %}" class="btn btn-primary" onclick="return confirm('本当によろしいですか？');">運を訓練する</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <section class="my-3">
+                    <h2 class="card-title">キャリア</h2>
+                    <p>レース出場回数：{{horse.num_running}}　優勝した回数：{{horse.num_top}}　残りレース回数：{{horse.remaining_racings|subtract:horse.num_running}}　残りトレーニング回数：{{horse.num_remaining_turns}}</p>
+                </section>
+                {% if not horse.retired %}
+                <section class="my-3">
+                    <h4 class="card-title">キャリア延長</h4>
+                    <p>
+                        キャリア延長施術は最先端のケアを受けることが出来ます。<br>
+                        効果：残りトレーニング回数が10、レースに出場できる回数が1増える。<br>
+                        費用：¥1,000
+                    </p>
+                    <a href="{% url 'horse:extend_career' horse.id %}" class="btn btn-primary" onclick="return confirm('本当によろしいですか？');">キャリア延長施術</a>
+                </section>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Horse Traits Section -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">特性</h2>
+                {% for trait in horse.traits.all %}
+                    <p style="font-size: 18px;"><strong>{{ trait.name }}</strong>: {{ trait.description }}</p>
+                {% empty %}
+                    <p style="font-size: 18px;">このエモモンは特性を持っていません。</p>
+                {% endfor %}
+                {% if not horse.retired %}
+                <!-- 特性追加ボタン -->
+                <h4 class="card-title">特別稽古</h4>
+                <p>
+                    特別稽古は自分を見つめなおすことで新たな才能を開花させます。<br>
+                    効果：特性を2つランダムに追加する。<br>
+                    費用：¥2,000
+                </p>
+                <a href="{% url 'horse:add_traits' horse.id %}" class="btn btn-primary" onclick="return confirm('本当によろしいですか？');">特別稽古</a>
+                {% endif %}
+            </div>
+        </div>
+        {% if not horse.retired %}
+        <!-- Horse Name Edit Section -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">情報を変更する</h2>
+                <form method="POST" action="{% url 'horse:edit_name' horse.id %}" enctype="multipart/form-data" style="font-size: 18px;">
+                    {% csrf_token %}
+                    新しい名前：<input type="text" name="new_name" placeholder="新しい名前" value="{{ horse.name }}">
+                    <!-- {{ form.emoji.label }}: {{ form.emoji }} -->
+                    絵文字: {{ form.emoji }}　　
+                    <button type="submit" class="btn btn-primary">情報を変更する</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Horse Release Section -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">戦力外通告</h2>
+                <a href="{% url 'horse:release' horse.id %}" class="btn btn-danger release-horse">このエモモンに戦力外通告を行う</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Messages will be inserted here -->
+                    {% for message in messages %}
+                        {% if message %}
+                            <p>{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .emoji{
+            font-size: 260px;
+        }
+    </style>
+    {% block extra_js %}
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script>
+        var data = [
+            {axis: 'スタミナ🚩', value: {{ horse.stamina }}, order: 0},
+            {axis: 'スピード👟', value: {{ horse.speed }}, order: 2},
+            {axis: '運🔖', value: {{ horse.luck }}, order: 1}
+        ];
+
+        var width = 400,
+            height = 400;
+
+        var svg = d3.select("#statusChart")
+                    .attr("width", width)
+                    .attr("height", height);
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var scale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([0, width / 2 - 50]);
+
+        var line = d3.line()
+        .x(function(d) { return scale(d.value) * Math.cos((d.order / data.length) * 2 * Math.PI - Math.PI / 2); })
+        .y(function(d) { return scale(d.value) * Math.sin((d.order / data.length) * 2 * Math.PI - Math.PI / 2); })
+        .curve(d3.curveLinearClosed);
+
+        // Add guidelines
+        var guidelineData = [0, 25, 50, 75, 100];
+            guidelineData.forEach(function(d) {
+            g.append("circle")
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("r", scale(d))
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("stroke-dasharray", "2,2");
+        });
+    g.append("path")
+    .datum(data)
+    .attr("d", line)
+    .style("fill", "#008080")
+    .style("stroke", "#008080")
+    .style("stroke-width", "2px")
+    .style("fill-opacity", ".5");
+
+    // Add labels
+    data.forEach(function(d) {
+        g.append("text")
+        .attr("x", (scale(100) + 20) * Math.cos((d.order / data.length) * 2 * Math.PI - Math.PI / 2))  // Change scale(d.value) to scale(100)
+        .attr("y", (scale(100) + 20) * Math.sin((d.order / data.length) * 2 * Math.PI - Math.PI / 2))  // Change scale(d.value) to scale(100)
+        .text(d.axis + ": " + d.value)
+        .style("font-size", "16px")  // Change the font size to 16px
+        .style("text-anchor", "middle");
+    });
+</script>
+<style>
+    .card {
+            border: 5px solid black; /* Adjust thickness of border as needed */
+            margin: auto; /* Center the card if needed */
+        }
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){
+            {% if messages %}
+                    // If there are messages, show the modal
+                    $('#messageModal').modal('show');
+            {% endif %}
+    });
+</script>
+<script>
+    document.querySelectorAll('.release-horse').forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const href = this.href;
+            fetch('/horse/get_horse_count')
+                .then(response => response.json())
+                .then(data => {
+                    const count = Number(data.count);
+                    if (count === 1) {
+                        if (!confirm('このエモモンしか手持ちがいないようですが本当に戦力外通告しますか？')) {
+                            return;
+                        }
+                    } else {
+                        if (!confirm('本当にこのエモモンに戦力外通告しますか？')) {
+                            return;
+                        }
+                    }
+                    window.location.href = href;
+                });
+        });
+    });
+</script>
+
+{% endblock %}
+{% endblock %}

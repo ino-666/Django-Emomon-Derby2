@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Python 講座{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <br><br>
+<style>
+    #submit-button {
+        position: absolute;
+        top: 60px;  /* タイトルの下に配置するための適切な位置を調整します */
+        right: 10px; 
+    }
+    .goRace {
+        position: fixed;
+        bottom: 5%;
+        right: 8%; 
+    }
+    .large-button {
+        font-size: 24px;  /* この値を調整してボタンのテキストの大きさを変えることができます */
+        padding: 10px 24px;  /* この値を調整してボタン自体の大きさを変えることができます */
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h1 class="my-4 text-center">出走エモモン決定画面</h1>
+            <h3 class="my-3">エモモンを選んでクリックしてね！</h3>
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <form method="POST" action="{% url 'race:race_venue' %}"> <!-- あなたのレース画面のURLを指定 -->
+                {% csrf_token %}
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for horse in horses %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <label class="list-group-item" for="horse{{ horse.id }}">
+                                <div class="row"> <!-- Add this line -->
+                                    <div class="col-md-6 text-center"> <!-- Add this line -->
+                                        <input type="radio" id="horse{{ horse.id }}" name="horse" value="{{ horse.id }}">
+                                        <h1 class="emoji">{{ horse.emoji }}</h1> <h1>名前：{{ horse.name }}</h1>
+                                    </div> <!-- Add this line -->
+                                    <div class="col-md-6"> <!-- Add this line -->
+                                        <svg id="statusChart{{ horse.id }}"></svg> <!-- Add this line -->
+                                    </div> <!-- Add this line -->
+                                </div> <!-- Add this line -->
+                                <p class="small-margin" style="font-size: 30px; ">特性：
+                                    {% for trait in horse.traits.all %}
+                                        {% if forloop.first %}
+                                            {{ trait.name }}
+                                        {% else %}
+                                            , {{ trait.name }}
+                                    {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+                <button class="btn btn-primary mt-3 float-right goRace large-button" type="submit">出走する</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 絵文字の大きさ*/
+    .emoji{
+        font-size: 260px;
+    }
+    
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+        background-color: #000;
+        height: 100px; /* increase the size of the arrows */
+        width: 100px; /* increase the size of the arrows */
+    }
+    .carousel-control-prev, .carousel-control-next {
+        position: fixed;
+        width: auto;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .carousel-control-prev {
+        left: 60px;
+    }
+
+    .carousel-control-next {
+        right: 60px;
+    }
+
+    .carousel-control-prev-icon, .carousel-control-next-icon {
+        background-color: #000;
+        border: 5px solid black;
+    }
+    /* Add this CSS rule to style the label when the mouse hovers over it */
+
+    .list-group-item {
+        border: 2px solid #000000; /* 枠線の幅を3pxに増やし、色を黒(#000000)に変更 */
+    }
+
+    .list-group-item:hover {
+        border: 5px solid black;
+    }
+
+    /* ラジオボタンが選択されているときのラベルのスタイル */
+    .list-group-item:has(input[type="radio"]:checked) {
+        border: 10px solid black; /* 枠の色を黒に変更 */
+        background-color: #dcdcdc;
+        transform: scale(1.05);
+    }
+
+    /* Hide radio buttons */
+    input[type="radio"] {
+        display: none;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script>
+    
+    document.querySelector('form').addEventListener('submit', function(event){
+        var radios = document.getElementsByName('horse');
+        var formValid = false;
+    
+        var i = 0;
+        while (!formValid && i < radios.length) {
+            if (radios[i].checked) formValid = true;
+            i++;        
+        }
+    
+        if (!formValid) {
+            alert('エモモンを選んでください');
+            event.preventDefault();
+        }
+    });
+    
+    // ラジオボタンがクリックされたときにラベルのCSSクラスを更新するためのイベントリスナーを追加
+    document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.list-group-item').forEach(function(label) {
+                if (label.querySelector('input[type="radio"]').checked) {
+                    label.style.border = '10px solid black'; // ラジオボタンが選択されているラベルの枠線を黒に設定
+                } else {
+                    label.style.border = '2px solid #000000'; // ラジオボタンが選択されていないラベルの枠線を元の状態に戻す
+                }
+            });
+        });
+    });
+    
+    {% for horse in horses %}
+        var data = [
+            {axis: 'スタミナ', value: {{ horse.stamina }}, order: 0},
+            {axis: 'スピード', value: {{ horse.speed }}, order: 2},
+            {axis: '運', value: {{ horse.luck }}, order: 1},
+        ];
+
+        var width = 400,
+            height = 400;
+
+        var svg = d3.select("#statusChart" + {{ horse.id }})
+                    .attr("width", width)
+                    .attr("height", height);
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var scale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, width / 2 - 50]);
+
+        var line = d3.line()
+            .x(function(d) { return scale(d.value) * Math.cos((d.order / data.length) * 2 * Math.PI - Math.PI / 2); })
+            .y(function(d) { return scale(d.value) * Math.sin((d.order / data.length) * 2 * Math.PI - Math.PI / 2); })
+            .curve(d3.curveLinearClosed);
+
+        var guidelineData = [0, 25, 50, 75, 100];
+            guidelineData.forEach(function(d) {
+            g.append("circle")
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("r", scale(d))
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("stroke-dasharray", "2,2");
+        });
+
+        g.append("path")
+        .datum(data)
+        .attr("d", line)
+        .style("fill", "#008080")
+        .style("stroke", "#008080")
+        .style("stroke-width", "2px")
+        .style("fill-opacity", ".5");
+
+        data.forEach(function(d) {
+            g.append("text")
+            .attr("x", (scale(100) + 20) * Math.cos((d.order / data.length) * 2 * Math.PI - Math.PI / 2))  
+            .attr("y", (scale(100) + 20) * Math.sin((d.order / data.length) * 2 * Math.PI - Math.PI / 2))  
+            .text(d.axis + ": " + d.value)
+            .style("font-size", "16px")  
+            .style("text-anchor", "middle");
+        });
+    {% endfor %}
+
+    </script>
+    </div>
+    <!-- d3js JS -->
+    <!-- jquery JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

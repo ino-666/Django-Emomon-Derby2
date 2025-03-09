@@ -1,0 +1,70 @@
+HTML CSSResult Skip Results Iframe
+EDIT ON
+body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mtaiyo {
+    width: 5vw;
+    height: 5vw;
+    border-radius: 2.5vw;
+    background: radial-gradient(
+        #fff 0, 
+        #ffc 40%, 
+        #ff5 80%,
+        #ff0 90%
+    );
+    position: absolute;
+    left: 5%; /* 左から5%の位置に配置 */
+    top: 5%;  /* 上から5%の位置に配置 */
+}
+
+.parts {
+    position: absolute;
+    background: #fc0;
+}
+
+.me1, .me2 {
+    width: 0.75vw; /* 3vwの25% */
+    height: 0.75vw; /* 3vwの25% */
+    border-radius: 0.375vw; /* 1.5vwの25% */
+    margin: auto;
+    top: 1.75vw; /* 7vwの25% */
+}
+
+.me1 {
+    left: 1.125vw; /* 4.5vwの25% */
+}
+
+.me2 {
+    right: 1.125vw; /* 4.5vwの25% */
+}
+
+.kuchi {
+    width: 1.5vw; /* 6vwの25% */
+    height: 0.75vw; /* 3vwの25% */
+    border-radius: 0 0 0.75vw 0.75vw; /* 3vwの25% */
+    margin: auto;
+    bottom: 1vw; /* 4vwの25% */
+    right: 0;
+    left: 0; 
+}
+@keyframes swing {
+    0% , 100%{
+        transform: rotate(10deg);
+    }
+    50%{
+        transform: rotate(-10deg);
+    }
+}
+
+.yurayura {
+    transform-origin: center bottom;
+    animation: swing 2s linear infinite;
+}
+
+Resources1× 0.5× 0.25×Rerun

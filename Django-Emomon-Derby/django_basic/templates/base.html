@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Emomon Derby{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between">
+            <p><a href={% url "accounts:home" %}>Homeへ</a></p>
+            <h1 class="text-center flex-grow-1" style="font-family: 'Great Vibes', cursive; font-size: 64px;">Emomon Derby</h1>
+            <p style="opacity: 0;"><a href="#">Placeholder</a></p> <!-- This is a placeholder to balance the layout -->
+        </div>
+        <hr>
+        <div id="content">
+        {% block content %}{% endblock %}
+        </div>
+    </div>
+    <!-- d3js JS -->
+    <!-- jquery JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

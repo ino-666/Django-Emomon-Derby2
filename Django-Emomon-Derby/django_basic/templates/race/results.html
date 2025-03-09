@@ -1,0 +1,435 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>順位表示ページ</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        /* 紙吹雪 */
+        .confetti{
+            margin: 0;
+            background: linear-gradient(0deg, #fffde4 0%, #a2d0eb 40%, #c0e0f3 80%) no-repeat #c0e0f3;
+        }
+        .confetti canvas {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+
+        /* 表彰台 */
+        .podium {
+            --w: 1000px; /* 基本サイズ */
+            position: relative;
+            width: var(--w);
+            height: var(--w);
+            margin: auto;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* 台 */
+        .podium div {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            position: absolute;
+            bottom: -10%;
+            border-top: solid 5px #fff;
+            font-size: calc(var(--w) * 0.15);
+            font-weight: bold;
+            color: #FFF;
+        }
+
+        /* 1 */
+        .podium div:nth-child(1) {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 35%;
+            background-color: #FFFF33;
+            z-index: 2;
+        }
+
+        /* 2 */
+        .podium div:nth-child(2) {
+            left: -10%;
+            width: 40%;
+            height: 25%;
+            background-color: #BBBBBB;
+        }
+
+        /* 3 */
+        .podium div:nth-child(3) {
+            right: -10%;
+            width: 40%;
+            height: 20%;
+            background-color: #996633;
+        }
+
+        /* 結果カードのスタイル */
+        .results-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .results {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 40%; /* 適宜この値を調整してください */
+            border-radius: 50%; /* これによりコンテナが円形になります */
+            padding: 20px; /* カードの周りにスペースを作るためのパディングを追加します */
+        }
+
+        .result-card {
+            flex: 0 1 auto; /* これによりカードが伸縮しなくなります */
+            margin: 200px; /* カード間にスペースを作るためのマージンを追加します */
+            border: 1px solid #000; /* 枠線を黒で表示 */
+            /* 以下、既存のスタイル定義 */
+            margin: 10px;
+            padding: 20px;
+            width: 300px; /* カードの幅を固定 */
+            background: #fff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* 最初のカード */
+        .result-card:nth-child(1) {
+            position: absolute;
+            top: 40px;  /* 上からの位置 */
+            left: 120px; /* 左からの位置 */
+            background: #fff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* 2番目のカード */
+        .result-card:nth-child(2) {
+            position: absolute;
+            top: 150px;  /* 上からの位置 */
+            left: -280px; /* 左からの位置 */
+        }
+
+        /* 3番目のカード */
+        .result-card:nth-child(3) {
+            position: absolute;
+            top: 190px;  /* 上からの位置 */
+            right: -260px; /* 右からの位置 */
+        }
+
+        /* 4番目のカード */
+        .result-card:nth-child(4) {
+            position: absolute;
+            top: 600px;  /* 上からの位置 */
+            left: -400px; /* 左からの位置 */
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* ボタンを右下に固定するスタイル */
+        .button-container {
+            position: absolute;
+            top: 800px;  /* 上からの位置 */
+            right: 300px; /* 左からの位置 */
+        }
+
+        /* 絵文字のスタイル定義 */
+        .emoji {
+            font-size: 100px; /* 絵文字の大きさを調整します。適宜この値を変更してください。 */
+            text-align: center; /* 名前を中央に配置します */
+        }
+
+        /* 名前のスタイル定義 */
+        .name {
+            font-size: 20px;/* 名前のスタイルを調整します。必要に応じてこの部分を編集してください。 */
+            text-align: center; /* 名前を中央に配置します */
+        }
+
+        #overlay {
+            position: fixed; 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            top: 0; 
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5); 
+            z-index: 2; 
+            cursor: pointer; 
+        }
+        
+        #text{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 50px;
+            color: white;
+            transform: translate(-50%,-50%);
+            -ms-transform: translate(-50%,-50%);
+        }
+        .large-button {
+            font-size: 24px;  /* この値を調整してボタンのテキストの大きさを変えることができます */
+            padding: 10px 24px;  /* この値を調整してボタン自体の大きさを変えることができます */
+        }
+        .postion {
+            position: fixed;
+            bottom: 5%;
+            right: 8%; 
+        }
+
+        /* 表彰台 */
+        @media screen and (orientation: landscape) and (max-width: 700px) {
+        .podium {
+            --w: 600px; /* 基本サイズ */
+        }
+    
+        /* 結果カードのスタイル */
+        .results {
+            width: 60%; /* 適宜この値を調整 */
+        }
+        .result-card {
+            margin: 100px; /* カード間にスペースを作るためのマージンを追加 */
+            width: 200px; /* カードの幅を固定 */
+        }
+    
+        /* 最初のカード */
+        .result-card:nth-child(1) {
+            top: -60px;
+            left: 0px;
+        }
+    
+        /* 2番目のカード */
+        .result-card:nth-child(2) {
+            top: -25px;
+            left: -220px;
+        }
+    
+        /* 3番目のカード */
+        .result-card:nth-child(3) {
+            top: 20px;
+            right: -240px;
+        }
+    
+        /* 4番目のカード */
+        .result-card:nth-child(4) {
+            top: 310px;
+            left: -240px;
+        }
+    
+        /* ボタンを右下に固定するスタイル */
+        .button-container {
+            top: 400px;  /* 上からの位置 */
+            right: 150px; /* 左からの位置 */
+        }
+    
+        /* 絵文字のスタイル定義 */
+        .emoji {
+            font-size: 60px; /* 絵文字の大きさを調整 */
+        }
+    
+        /* 名前のスタイル定義 */
+        .name {
+            font-size: 12px;/* 名前のスタイルを調整 */
+        }
+    
+        /* ボタンのスタイル */
+        .large-button {
+            font-size: 14px;  /* ボタンのテキストの大きさを調整 */
+            padding: 6px 14px;  /* ボタン自体の大きさを調整 */
+        }
+    }
+
+    </style>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    {% comment %} 花吹雪 {% endcomment %}
+    <div class="confetti">
+        <canvas></canvas>
+    </div>
+
+    {% comment %} 順位 {% endcomment %}
+    <div class="results-container">
+        <div class="results"></div>
+    </div>
+
+    {% comment %} 表彰台 {% endcomment %}
+    <div class="podium">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+    </div>
+    <div class="button-container">
+        <a class="btn btn-secondary mb-3 postion large-button" href="{% url 'accounts:home' %}">homeへ戻る</a>
+    </div>
+    <div id="overlay">
+        <div id="text">結果発表</div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <div class="modal-body">
+            <!-- Messages will be inserted here -->
+            {% for message in messages %}
+                {% if message %}
+                    <p>{{ message|safe }}</p>
+                {% endif %}
+            {% endfor %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ローカルストレージからデータを取得、順位表示
+        var finishedEmojis = JSON.parse(localStorage.getItem('finishedEmojis'));
+
+        // HTML要素に結果を表示
+        var resultsDiv = document.getElementsByClassName('results')[0];
+        for(let i = 0; i < finishedEmojis.length; i++) {
+            var splitIndex = finishedEmojis[i].lastIndexOf("：");  // 「：」の位置を取得
+            var charArray = Array.from(finishedEmojis[i]);
+            var emoji = charArray.slice(-1).join('');  // 最後の1つのユニット（絵文字）を取得
+            var name = charArray.slice(4, -1).join('');  // 最初の５文字目から最後の1つのユニット（絵文字）を除いた名前を取得
+            var resultDiv = document.createElement('div');
+
+            resultDiv.className = 'result-card';
+
+            var emojiDiv = document.createElement('div');
+            emojiDiv.className = 'emoji';
+            emojiDiv.textContent = emoji;
+            resultDiv.appendChild(emojiDiv);  // 絵文字をresult-cardに追加
+
+            var br = document.createElement('br');  // 改行要素を作成
+            resultDiv.appendChild(br);  // 改行をresult-cardに追加
+
+            var nameDiv = document.createElement('div');
+            nameDiv.className = 'name';
+            nameDiv.textContent = name;
+            resultDiv.appendChild(nameDiv);  // 名前をresult-cardに追加
+
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        //紙吹雪の処理
+        window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
+        var canvas = document.querySelector("canvas");
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight;
+        var ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
+        var particles = [];
+        var pIndex = 0;
+        var x, y, frameId;
+        function Dot(x,y,vx,vy,color){
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.color = color;
+            particles[pIndex] = this;
+            this.id = pIndex;
+            pIndex++;
+            this.life = 0;
+            this.maxlife = 1000;
+            this.degree = getRandom(0,360);
+            this.size = Math.floor(getRandom(8,10));
+        };
+        Dot.prototype.draw = function(x, y){
+            this.degree += 1;
+            this.vx *= 0.99;
+            this.vy *= 0.999;
+            this.x += this.vx+Math.cos(this.degree*Math.PI/600);
+            this.y += this.vy;
+            this.width = this.size;
+            this.height = Math.cos(this.degree*Math.PI/40)*this.size;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.moveTo(this.x+this.x/2, this.y+this.y/2);
+            ctx.lineTo(this.x+this.x/2+this.width/2, this.y+this.y/2+this.height);
+            ctx.lineTo(this.x+this.x/2+this.width+this.width/2, this.y+this.y/2+this.height);
+            ctx.lineTo(this.x+this.x/2+this.width, this.y+this.y/2);
+            ctx.closePath();
+            ctx.fill();
+            this.life++;
+            if(this.life >= this.maxlife){
+                delete particles[this.id];
+            }
+        }
+        window.addEventListener("resize", function(){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            x = canvas.width / 2;
+            y = canvas.height / 2;
+        });
+
+        function loop(){
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            if(frameId % 2 == 0) {
+                new Dot(canvas.width*Math.random()-canvas.width+canvas.width*Math.random(), -canvas.height/2, getRandom(1, 3),  getRandom(2, 4),"#ED1A3D");
+                new Dot(canvas.width*Math.random()-canvas.width+canvas.width*Math.random(), -canvas.height/2, getRandom(1, 3),  getRandom(2, 4),"#FFEB3D");
+            }
+            for(var i in particles){
+                particles[i].draw();
+            }
+            frameId = requestAnimationFrame(loop);
+        }
+
+        loop();
+
+        function getRandom(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+
+        var overlay = document.getElementById('overlay');
+        overlay.addEventListener('click', function() {
+            overlay.style.display = 'none';
+            var soundFileUrl = "{% static 'audio/kekahapyo.mp3' %}";
+            var audio = new Audio(soundFileUrl);
+            audio.volume = 0.03; // 音量3% 
+            audio.play();
+        });
+
+</script>
+
+<!-- Add this script at the end of your HTML file -->
+<script type="text/javascript">
+    $(document).ready(function(){
+        {% if messages %}
+        // If there are messages, show the modal
+        $('#messageModal').modal('show');
+        {% endif %}
+    });
+</script>
+<script>
+    $(document).ready(function(){
+            if ($('.alert').length > 0) {
+                    $('#messageModal').modal('show');
+            }
+    });
+</script>
+</body>
+</html>
