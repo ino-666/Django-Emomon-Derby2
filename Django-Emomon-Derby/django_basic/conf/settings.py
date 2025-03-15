@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 import environ
-import logging
 from decouple import config
 from pathlib import Path
 from typing import List
@@ -40,38 +39,6 @@ DEBUG = True
 
 ALLOWED_HOSTS: List[str] = []
 
-# ログ設定
-logging.basicConfig(level=logging.DEBUG)
-
-# BASE_DIR 確認
-logging.debug(f"BASE_DIR: {os.path.abspath(BASE_DIR)}")
-
-# .env のパスを確認
-env_path = os.path.join(BASE_DIR, ".env")
-logging.debug(f".env のパスを確認: {env_path}")
-
-# 環境変数を読み込む
-env = environ.Env()
-if os.path.exists(env_path):
-    logging.debug(".env ファイルが見つかりました、読み込み中...")
-    env.read_env(env_path)
-else:
-    logging.error(".env ファイルが見つかりません！")
-
-# .env の値を出力
-try:
-    secret_key = env("SECRET_KEY")
-    logging.debug(f"SECRET_KEY が読み込まれました: {secret_key}")
-except environ.ImproperlyConfigured as e:
-    logging.error(f"SECRET_KEY の読み込みエラー: {e}")
-
-try:
-    db_name = env("DB_NAME")
-    logging.debug(f"DB_NAME が読み込まれました: {db_name}")
-except environ.ImproperlyConfigured as e:
-    logging.error(f"DB_NAME の読み込みエラー: {e}")
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -86,7 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-AUTH_USER_MODEL = 'accounts.User' # 追加
+AUTH_USER_MODEL = 'accounts.User'
 
 
 
