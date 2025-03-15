@@ -32,6 +32,10 @@ MEDIA_URL = "/media/"
 env = environ.Env()
 env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
+DB_USER = env('DB_USER')
+DB_PASSWORD = env('DB_PASSWORD')
+DB_HOST = env('DB_HOST')
+DB_PORT = env('DB_PORT')
 
 ALLOWED_HOSTS: List[str] = []
 
