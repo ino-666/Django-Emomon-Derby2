@@ -87,6 +87,8 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 
 env = environ.Env()
 env.read_env(os.path.join(BASE_DIR, '.env'))
+print(env('DATABASE_NAME'))
+
 
 DATABASES = {
     'default': {
