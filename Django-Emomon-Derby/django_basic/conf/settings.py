@@ -103,6 +103,8 @@ DATABASES = {
         'PASSWORD': config('DATABASE_PASSWORD'),
         'HOST': config('DATABASE_HOST'),
         'PORT': config('DB_PORT'),
+    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
