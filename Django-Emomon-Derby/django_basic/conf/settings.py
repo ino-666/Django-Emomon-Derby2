@@ -10,10 +10,43 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
-import environ # type: ignore
-from decouple import config # type: ignore
+import environ
+import logging
+from decouple import config
 from pathlib import Path
 from typing import List
+
+
+# ログ設定
+logging.basicConfig(level=logging.DEBUG)
+
+# BASE_DIR 確認
+logging.debug(f"BASE_DIR: {os.path.abspath(BASE_DIR)}")
+
+# .env のパスを確認
+env_path = os.path.join(BASE_DIR, ".env")
+logging.debug(f"Looking for .env at: {env_path}")
+
+# 環境変数を読み込む
+env = environ.Env()
+if os.path.exists(env_path):
+    logging.debug(".env file found, loading...")
+    env.read_env(env_path)
+else:
+    logging.error(".env file not found!")
+
+# .env の値を出力
+try:
+    secret_key = env("SECRET_KEY")
+    logging.debug(f"SECRET_KEY Loaded: {secret_key}")
+except environ.ImproperlyConfigured as e:
+    logging.error(f"Error loading SECRET_KEY: {e}")
+
+try:
+    db_name = env("DB_NAME")
+    logging.debug(f"DB_NAME Loaded: {db_name}")
+except environ.ImproperlyConfigured as e:
+    logging.error(f"Error loading DB_NAME: {e}")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
