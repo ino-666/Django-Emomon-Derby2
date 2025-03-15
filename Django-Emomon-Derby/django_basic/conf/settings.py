@@ -20,38 +20,6 @@ from typing import List
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# ログ設定
-logging.basicConfig(level=logging.DEBUG)
-
-# BASE_DIR 確認
-logging.debug(f"BASE_DIR: {os.path.abspath(BASE_DIR)}")
-
-# .env のパスを確認
-env_path = os.path.join(BASE_DIR, ".env")
-logging.debug(f"Looking for .env at: {env_path}")
-
-# 環境変数を読み込む
-env = environ.Env()
-if os.path.exists(env_path):
-    logging.debug(".env file found, loading...")
-    env.read_env(env_path)
-else:
-    logging.error(".env file not found!")
-
-# .env の値を出力
-try:
-    secret_key = env("SECRET_KEY")
-    logging.debug(f"SECRET_KEY Loaded: {secret_key}")
-except environ.ImproperlyConfigured as e:
-    logging.error(f"Error loading SECRET_KEY: {e}")
-
-try:
-    db_name = env("DB_NAME")
-    logging.debug(f"DB_NAME Loaded: {db_name}")
-except environ.ImproperlyConfigured as e:
-    logging.error(f"Error loading DB_NAME: {e}")
-
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = "/media/"
 
@@ -71,6 +39,37 @@ DEBUG = env('DEBUG')
 DEBUG = True
 
 ALLOWED_HOSTS: List[str] = []
+
+# ログ設定
+logging.basicConfig(level=logging.DEBUG)
+
+# BASE_DIR 確認
+logging.debug(f"BASE_DIR: {os.path.abspath(BASE_DIR)}")
+
+# .env のパスを確認
+env_path = os.path.join(BASE_DIR, ".env")
+logging.debug(f".env のパスを確認: {env_path}")
+
+# 環境変数を読み込む
+env = environ.Env()
+if os.path.exists(env_path):
+    logging.debug(".env ファイルが見つかりました、読み込み中...")
+    env.read_env(env_path)
+else:
+    logging.error(".env ファイルが見つかりません！")
+
+# .env の値を出力
+try:
+    secret_key = env("SECRET_KEY")
+    logging.debug(f"SECRET_KEY が読み込まれました: {secret_key}")
+except environ.ImproperlyConfigured as e:
+    logging.error(f"SECRET_KEY の読み込みエラー: {e}")
+
+try:
+    db_name = env("DB_NAME")
+    logging.debug(f"DB_NAME が読み込まれました: {db_name}")
+except environ.ImproperlyConfigured as e:
+    logging.error(f"DB_NAME の読み込みエラー: {e}")
 
 
 # Application definition
