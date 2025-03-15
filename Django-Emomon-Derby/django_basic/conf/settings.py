@@ -16,6 +16,9 @@ from decouple import config
 from pathlib import Path
 from typing import List
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ログ設定
 logging.basicConfig(level=logging.DEBUG)
@@ -47,10 +50,6 @@ try:
     logging.debug(f"DB_NAME Loaded: {db_name}")
 except environ.ImproperlyConfigured as e:
     logging.error(f"Error loading DB_NAME: {e}")
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
